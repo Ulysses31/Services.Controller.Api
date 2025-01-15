@@ -2,12 +2,18 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Services.Controllers.API.Controllers;
 
+/// <summary>
+/// Controller for managing weather forecasts.
+/// </summary>
 [ApiController]
 [Route("[controller]")]
 public class WeatherForecastController : ControllerBase
 {
+  /// <summary>
+  /// Static list of weather summaries.
+  /// </summary>
   private static readonly string[] Summaries = new[]
-  {
+   {
     "Freezing",
     "Bracing",
     "Chilly",
@@ -20,8 +26,11 @@ public class WeatherForecastController : ControllerBase
     "Scorching"
   };
 
+  /// <summary>
+  /// In-memory storage for weather forecasts.
+  /// </summary>
   public WeatherForecast[] forecast = [
-      new WeatherForecast {
+       new WeatherForecast {
         Id = "38b7942a-8a8f-4a34-9744-e4dea6eaed78",
         Date = DateOnly.FromDateTime(DateTime.Now),
         TemperatureC = 25,
@@ -51,15 +60,25 @@ public class WeatherForecastController : ControllerBase
         TemperatureC = 20,
         Summary = "Warm"
       }
-    ];
+     ];
 
   private readonly ILogger<WeatherForecastController> _logger;
 
+  /// <summary>
+  /// Initializes a new instance of the <see cref="WeatherForecastController"/> class.
+  /// </summary>
+  /// <param name="logger">Logger for the controller.</param>
   public WeatherForecastController(ILogger<WeatherForecastController> logger)
   {
     _logger = logger;
   }
 
+  /// <summary>
+  /// Retrieves all weather forecasts.
+  /// </summary>
+  /// <returns>A list of weather forecasts.</returns>
+  /// <response code="200">Returns weather forecast list</response>
+  /// <response code="500">For a bad request</response>
   [HttpGet()]
   [Tags(["weather-forecast"])]
   [EndpointName("WeatherForecast")]
@@ -74,6 +93,15 @@ public class WeatherForecastController : ControllerBase
   }
 
 
+  /// <summary>
+  /// Retrieves a specific weather forecast by ID.
+  /// </summary>
+  /// <param name="id">The unique identifier of the weather forecast.</param>
+  /// <returns>The requested weather forecast if found.</returns>
+  /// <response code="200">Returns weather forecast if found</response>
+  /// <response code="400">Returns bad request status</response>
+  /// <response code="404">Returns nothing if not found</response>
+  /// <response code="500">For internal server error</response>
   [HttpGet("{id}")]
   [Tags(["weather-forecast"])]
   [EndpointName("WeatherForecastById")]
@@ -111,7 +139,8 @@ public class WeatherForecastController : ControllerBase
 
     return Ok(result);
   }
-  
+
+
   /// <summary>
   /// Create a new WeatherForecast 
   /// </summary>
@@ -132,7 +161,7 @@ public class WeatherForecastController : ControllerBase
   /// </remarks>
   /// <response code="201">Returns the newly created item</response>
   /// <response code="400">If the item is null</response>
-  /// <response code="500">For a bad request</response>
+  /// <response code="500">For internal server error</response>
   [HttpPost]
   [Tags(["weather-forecast"])]
   [EndpointName("WeatherForecastCreate")]
@@ -168,6 +197,29 @@ public class WeatherForecastController : ControllerBase
       );
   }
 
+  /// <summary>
+  /// Updates an existing weather forecast.
+  /// </summary>
+  /// <param name="id">The ID of the forecast to update.</param>
+  /// <param name="newForecast">The updated weather forecast details.</param>
+  /// <returns>No content if update is successful.</returns>
+  /// <remarks>
+  /// Sample request:
+  ///
+  ///     POST /WeatherForecast
+  ///     {
+  ///        "id": 1,
+  ///        "date": "2025-01-14",
+  ///        "temperatureC": 0,
+  ///        "temperatureF": 0,
+  ///        "summary": "string"
+  ///     }
+  ///
+  /// </remarks>
+  /// <response code="204">Returns no content if succeeded</response>
+  /// <response code="400">If the item is null</response>
+  /// <response code="404">If the item is null</response>
+  /// <response code="500">For internal server error</response>
   [HttpPut("{id}")]
   [Tags(["weather-forecast"])]
   [EndpointName("WeatherForecastUpdate")]
@@ -223,6 +275,15 @@ public class WeatherForecastController : ControllerBase
     return await Task.FromResult<IActionResult>(NoContent());
   }
 
+  /// <summary>
+  /// Deletes a weather forecast by ID.
+  /// </summary>
+  /// <param name="id">The ID of the forecast to delete.</param>
+  /// <returns>No content if deletion is successful.</returns>
+  /// <response code="204">Returns no content if succeeded</response>
+  /// <response code="400">If the item is null</response>
+  /// <response code="404">If the item is null</response>
+  /// <response code="500">For internal server error</response>
   [HttpDelete("{id}")]
   [Tags(["weather-forecast"])]
   [EndpointName("WeatherForecastDelete")]
