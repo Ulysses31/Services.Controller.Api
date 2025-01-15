@@ -1,7 +1,9 @@
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Asp.Versioning.ApiExplorer;
 using GenApi.Hosted.Service;
 using Serilog;
 
@@ -15,7 +17,7 @@ public class Program
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
     IServiceCollection services = builder.Services;
     string envName = builder.Environment.EnvironmentName;
-
+ 
     // JSON Options  
     JsonSerializerOptions jsonOptions = new JsonSerializerOptions
     {
@@ -72,7 +74,9 @@ public class Program
     });
 
     // Configures Swagger/OpenAPI for API documentation.
-    services.CommonSwaggerSetup($"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+    services.CommonSwaggerSetup(
+      $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"
+    );
 
     // Add hosted service to the dependency injection container
     if (envName.Equals("Development", StringComparison.Ordinal))
@@ -82,7 +86,7 @@ public class Program
 
     // ******************* APP ******************************************//
     var app = builder.Build();
-
+  
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
@@ -110,5 +114,6 @@ public class Program
     _logger.Information("===> Host: {HostIpAddress}", requesterInfo.hostInfo.Addr);
 
     app.Run();
+
   }
 }
