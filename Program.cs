@@ -6,6 +6,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using Services.Controllers.API.RateLimit;
 using Services.Controllers.API.Services;
 
 namespace Services.Controllers.API;
@@ -60,7 +61,7 @@ public class Program
 
     services.AddControllers((options) =>
     {
-      // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status200OK));
+      options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status429TooManyRequests));
       // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
       // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status401Unauthorized));
       // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status403Forbidden));
@@ -110,6 +111,9 @@ public class Program
       services.AddHostedService<GenApiHostedService>();
     }
 
+    // Rate Limiting
+    services.CommonRateLimitSetup();
+
     // ******************* APP ******************************************//
     var app = builder.Build();
 
@@ -136,6 +140,8 @@ public class Program
     app.UseAuthorization();
 
     app.MapControllers();
+
+    app.UseRateLimiter();
 
     _logger.Information("===> Environment: {envName}", envName);
     _logger.Information("===> Host: {HostIpAddress}", requesterInfo.hostInfo.Addr);

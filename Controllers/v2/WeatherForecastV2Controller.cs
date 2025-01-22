@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Services.Controllers.API.RateLimit;
 
 namespace Services.Controllers.API.Controllers.v2;
 
@@ -8,6 +10,8 @@ namespace Services.Controllers.API.Controllers.v2;
 [ApiController]
 [ApiVersion("2.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[EnableRateLimiting(CommonRateLimitExtension.FixedPolicy!)]
+// [Authorize]
 public class WeatherForecastController : ControllerBase
 {
   /// <summary>
@@ -83,6 +87,7 @@ public class WeatherForecastController : ControllerBase
   /// <response code="204">Returns no content if succeeded</response>
   /// <response code="400">If the item is null</response>
   /// <response code="404">If the item is null</response>
+  /// <response code="429">Returns to many requests</response>
   /// <response code="500">For internal server error</response>
   [HttpDelete("{id}")]
   // [Tags(["weather-forecast"])]

@@ -107,7 +107,7 @@ namespace Services.Controllers.API
             Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
             Name = "Authorization",
             In = (OpenApiSecurityApiKeyLocation)ApiVersionParameterLocation.Header,
-            Type = OpenApiSecuritySchemeType.ApiKey,           
+            Type = OpenApiSecuritySchemeType.ApiKey,
           });
 
           options.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
@@ -190,6 +190,14 @@ namespace Services.Controllers.API
                   });
                 }
 
+                if (operation.Responses.ContainsKey("429"))
+                {
+                  operation.Responses["429"].Content.Add("application/xml", new OpenApiMediaType()
+                  {
+                    Example = WebUtility.HtmlDecode(prb)
+                  });
+                }
+
                 if (operation.Responses.ContainsKey("500"))
                 {
                   operation.Responses["500"].Content.Add("application/xml", new OpenApiMediaType()
@@ -216,6 +224,7 @@ namespace Services.Controllers.API
                       && operation.Responses.ContainsKey("201")
                       && operation.Responses.ContainsKey("400")
                       && operation.Responses.ContainsKey("404")
+                      && operation.Responses.ContainsKey("429")
                       && operation.Responses.ContainsKey("500"))
                     {
                       // Add "application/xml" to Response.Content if not already present

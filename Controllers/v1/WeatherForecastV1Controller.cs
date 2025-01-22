@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Services.Controllers.API.RateLimit;
 
 namespace Services.Controllers.API.Controllers.v1;
 
@@ -9,6 +11,7 @@ namespace Services.Controllers.API.Controllers.v1;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[EnableRateLimiting(CommonRateLimitExtension.FixedPolicy!)]
 // [Authorize]
 public class WeatherForecastController : ControllerBase
 {
@@ -82,6 +85,7 @@ public class WeatherForecastController : ControllerBase
   /// <remarks>This is a WeatherForecast list summary.</remarks>> 
   /// <returns>A list of weather forecasts.</returns>
   /// <response code="200">Returns weather forecast list</response>
+  /// <response code="429">Returns to many requests</response>
   /// <response code="500">For a bad request</response>
   [HttpGet()]
   // [Tags(["weather-forecast"])]
@@ -105,6 +109,7 @@ public class WeatherForecastController : ControllerBase
   /// <response code="200">Returns weather forecast if found</response>
   /// <response code="400">Returns bad request status</response>
   /// <response code="404">Returns nothing if not found</response>
+  /// <response code="429">Returns to many requests</response>
   /// <response code="500">For internal server error</response>
   [HttpGet("{id}")]
   // [Tags(["weather-forecast"])]
@@ -165,6 +170,7 @@ public class WeatherForecastController : ControllerBase
   /// </remarks>
   /// <response code="201">Returns the newly created item</response>
   /// <response code="400">If the item is null</response>
+  /// <response code="429">Returns to many requests</response>
   /// <response code="500">For internal server error</response>
   [HttpPost]
   // [Tags(["weather-forecast"])]
@@ -223,6 +229,7 @@ public class WeatherForecastController : ControllerBase
   /// <response code="204">Returns no content if succeeded</response>
   /// <response code="400">If the item is null</response>
   /// <response code="404">If the item is null</response>
+  /// <response code="429">Returns to many requests</response>
   /// <response code="500">For internal server error</response>
   [HttpPut("{id}")]
   // [Tags(["weather-forecast"])]
@@ -287,6 +294,7 @@ public class WeatherForecastController : ControllerBase
   /// <response code="204">Returns no content if succeeded</response>
   /// <response code="400">If the item is null</response>
   /// <response code="404">If the item is null</response>
+  /// <response code="429">Returns to many requests</response>
   /// <response code="500">For internal server error</response>
   [HttpDelete("{id}")]
   // [Tags(["weather-forecast"])]
