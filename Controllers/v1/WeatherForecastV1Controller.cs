@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace Services.Controllers.API.Controllers;
+namespace Services.Controllers.API.Controllers.v1;
 
 /// <summary>
 /// Controller for managing weather forecasts.
 /// </summary>
 [ApiController]
-[Route("[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 public class WeatherForecastController : ControllerBase
 {
   /// <summary>
@@ -76,15 +77,15 @@ public class WeatherForecastController : ControllerBase
   /// <summary>
   /// Retrieves all weather forecasts.
   /// </summary>
+  /// <remarks>This is a WeatherForecast list summary.</remarks>> 
   /// <returns>A list of weather forecasts.</returns>
   /// <response code="200">Returns weather forecast list</response>
   /// <response code="500">For a bad request</response>
   [HttpGet()]
-  [Tags(["weather-forecast"])]
+  // [Tags(["weather-forecast"])]
+  [MapToApiVersion("1.0")]
   [EndpointName("WeatherForecast")]
-  [EndpointSummary("This is a WeatherForecast list summary.")]
-  [EndpointDescription("This is a WeatherForecast list description.")]
-  [ProducesResponseType<IEnumerable<WeatherForecast>>(StatusCodes.Status200OK, "application/json", ["application/xml"])]
+  [ProducesResponseType<IEnumerable<WeatherForecast>>(StatusCodes.Status200OK, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/json")]
   // [ApiExplorerSettings(IgnoreApi = true)]  
   public async Task<IActionResult> Get()
@@ -96,6 +97,7 @@ public class WeatherForecastController : ControllerBase
   /// <summary>
   /// Retrieves a specific weather forecast by ID.
   /// </summary>
+  /// <remarks>This is a WeatherForecast summary.</remarks>> 
   /// <param name="id">The unique identifier of the weather forecast.</param>
   /// <returns>The requested weather forecast if found.</returns>
   /// <response code="200">Returns weather forecast if found</response>
@@ -103,10 +105,9 @@ public class WeatherForecastController : ControllerBase
   /// <response code="404">Returns nothing if not found</response>
   /// <response code="500">For internal server error</response>
   [HttpGet("{id}")]
-  [Tags(["weather-forecast"])]
+  // [Tags(["weather-forecast"])]
+  [MapToApiVersion("1.0")]
   [EndpointName("WeatherForecastById")]
-  [EndpointSummary("This is a WeatherForecast summary.")]
-  [EndpointDescription("This is a WeatherForecast description.")]
   [ProducesResponseType<WeatherForecast>(StatusCodes.Status200OK, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/json")]
@@ -147,6 +148,7 @@ public class WeatherForecastController : ControllerBase
   /// <param name="newForecast">WeatherForecast</param>
   /// <returns>A newly created weather forecast</returns>
   /// <remarks>
+  /// This is a WeatherForecast create summary.
   /// Sample request:
   ///
   ///     POST /WeatherForecast
@@ -163,10 +165,9 @@ public class WeatherForecastController : ControllerBase
   /// <response code="400">If the item is null</response>
   /// <response code="500">For internal server error</response>
   [HttpPost]
-  [Tags(["weather-forecast"])]
+  // [Tags(["weather-forecast"])]
+  [MapToApiVersion("1.0")]
   [EndpointName("WeatherForecastCreate")]
-  [EndpointSummary("This is a WeatherForecast create summary.")]
-  [EndpointDescription("This is a WeatherForecast create description.")]
   [ProducesResponseType<WeatherForecast>(StatusCodes.Status201Created, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/json")]
@@ -204,6 +205,7 @@ public class WeatherForecastController : ControllerBase
   /// <param name="newForecast">The updated weather forecast details.</param>
   /// <returns>No content if update is successful.</returns>
   /// <remarks>
+  /// This is a WeatherForecast update summary.
   /// Sample request:
   ///
   ///     POST /WeatherForecast
@@ -221,10 +223,9 @@ public class WeatherForecastController : ControllerBase
   /// <response code="404">If the item is null</response>
   /// <response code="500">For internal server error</response>
   [HttpPut("{id}")]
-  [Tags(["weather-forecast"])]
+  // [Tags(["weather-forecast"])]
+  [MapToApiVersion("1.0")]
   [EndpointName("WeatherForecastUpdate")]
-  [EndpointSummary("This is a WeatherForecast update summary.")]
-  [EndpointDescription("This is a WeatherForecast update description.")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/json")]
@@ -278,6 +279,7 @@ public class WeatherForecastController : ControllerBase
   /// <summary>
   /// Deletes a weather forecast by ID.
   /// </summary>
+  /// <remarks>This is a WeatherForecast delete summary.</remarks>
   /// <param name="id">The ID of the forecast to delete.</param>
   /// <returns>No content if deletion is successful.</returns>
   /// <response code="204">Returns no content if succeeded</response>
@@ -285,10 +287,9 @@ public class WeatherForecastController : ControllerBase
   /// <response code="404">If the item is null</response>
   /// <response code="500">For internal server error</response>
   [HttpDelete("{id}")]
-  [Tags(["weather-forecast"])]
-  [EndpointName("WeatherForecastDelete")]
-  [EndpointSummary("This is a WeatherForecast delete summary.")]
-  [EndpointDescription("This is a WeatherForecast delete description.")]
+  // [Tags(["weather-forecast"])]
+  [MapToApiVersion("1.0")]
+  [EndpointName("WeatherForecastDeleteV1")]
   [ProducesResponseType(StatusCodes.Status204NoContent)]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/json")]

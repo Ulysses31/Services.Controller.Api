@@ -1,7 +1,7 @@
 
 using Services.Controllers.API;
 
-namespace GenApi.Hosted.Service;
+namespace Services.Controllers.API.Services;
 
 /// <summary>
 /// GenApiHostedService class   
@@ -60,7 +60,7 @@ public class GenApiHostedService : IHostedService
   {
     // Code to execute after app.Run() 
     string genApiUriV1 = $"http://{CommonGenApiOptions.Domain}:{CommonGenApiOptions.Port}{CommonGenApiOptions.UrlV1}";
-    // string genApiUriV2 = $"http://{CommonGenApiOptions.Domain}:{CommonGenApiOptions.Port}{CommonGenApiOptions.UrlV2}";
+    string genApiUriV2 = $"http://{CommonGenApiOptions.Domain}:{CommonGenApiOptions.Port}{CommonGenApiOptions.UrlV2}";
 
     // Generate the hosted API Version 1 client
     await new Shared().GenerateHostedApiDoc(
@@ -71,11 +71,11 @@ public class GenApiHostedService : IHostedService
     );
 
     // Generate the hosted API Version 2 client
-    // await new Shared().GenerateHostedApiDoc(
-    //  genApiUriV2,
-    //  "WeatherForecastClient",
-    //  CommonGenApiOptions.Version2!,
-    //  _logger
-    // );
+    await new Shared().GenerateHostedApiDoc(
+     genApiUriV2,
+     "WeatherForecastClient",
+     CommonGenApiOptions.Version2!,
+     _logger
+    );
   }
 }

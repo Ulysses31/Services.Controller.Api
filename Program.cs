@@ -3,9 +3,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Asp.Versioning.ApiExplorer;
-using GenApi.Hosted.Service;
+using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using Services.Controllers.API.Services;
 
 namespace Services.Controllers.API;
 
@@ -57,7 +57,24 @@ public class Program
     }
     #endregion Logger
 
-    services.AddControllers();
+    services.AddControllers((options) => {
+      // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status200OK));
+      // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
+      // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status401Unauthorized));
+      // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status403Forbidden));
+      // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status404NotFound));
+      // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status500InternalServerError));
+      options.InputFormatters.Add(new Microsoft.AspNetCore.Mvc.Formatters.XmlSerializerInputFormatter(options));
+      options.OutputFormatters.Add(new Microsoft.AspNetCore.Mvc.Formatters.XmlSerializerOutputFormatter());
+      options.ReturnHttpNotAcceptable = true;
+    })
+      .AddXmlSerializerFormatters()
+      .AddXmlDataContractSerializerFormatters()
+      .AddJsonOptions(options =>
+      {
+        options.JsonSerializerOptions.WriteIndented = true;
+        options.JsonSerializerOptions.Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping;
+      });
 
     // Add services to the container.
     services.AddProblemDetails();
@@ -67,14 +84,14 @@ public class Program
 
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
     // Cache generated OpenAPI document
-    services.AddOutputCache(options =>
-    {
-      options.AddBasePolicy(policy =>
-        policy.Expire(TimeSpan.FromMinutes(10)));
-    });
+    // services.AddOutputCache(options =>
+    // {
+    //   options.AddBasePolicy(policy =>
+    //     policy.Expire(TimeSpan.FromMinutes(10)));
+    // });
 
     // Configures Swagger/OpenAPI for API documentation.
-    services.CommonSwaggerSetup(
+    services.CommonSwaggerSetup<WeatherForecast>(
       $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"
     );
 
@@ -93,7 +110,7 @@ public class Program
       app.UseDeveloperExceptionPage();
       app.UseExceptionHandler("/error-development");
       app.UseCommonSwagger();
-      app.UseOutputCache();
+      // app.UseOutputCache();
     }
     else
     {

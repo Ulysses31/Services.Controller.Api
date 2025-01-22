@@ -2,11 +2,11 @@ using System.Net;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using GenApi.Hosted.Service;
 using NSwag;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.TypeScript;
 using Serilog.Core;
+using Services.Controllers.API.Services;
 
 namespace Services.Controllers.API
 {
