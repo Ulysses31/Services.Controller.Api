@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Services.Controllers.API.Controllers.v1;
@@ -8,6 +9,7 @@ namespace Services.Controllers.API.Controllers.v1;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
+[Authorize]
 public class WeatherForecastController : ControllerBase
 {
   /// <summary>

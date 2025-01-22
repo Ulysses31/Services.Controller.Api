@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using NSwag;
 using NSwag.AspNetCore;
+using NSwag.Generation.Processors.Security;
 
 namespace Services.Controllers.API
 {
@@ -25,8 +26,8 @@ namespace Services.Controllers.API
         string? xmlDocumentFile
     ) where T : new()
     {
-      // Add authentication using JWT Bearer tokens.
-      //TODO:  services.AddAuthentication().AddJwtBearer();
+      //TODO: Add authentication using JWT Bearer tokens.
+      // services.AddAuthentication().AddJwtBearer();
 
       // Add authorization with custom policies.
       //TODO: services.AddAuthorizationBuilder()
@@ -39,9 +40,9 @@ namespace Services.Controllers.API
       services.AddApiVersioning(
           options =>
           {
-            // // Enable reporting of supported and deprecated API versions in response headers.
+            // Enable reporting of supported and deprecated API versions in response headers.
             options.ReportApiVersions = true;
-            // // Configure API version readers (e.g., URL segment, headers, media type).
+            // Configure API version readers (e.g., URL segment, headers, media type).
             options.ApiVersionReader = ApiVersionReader.Combine(
                     // new QueryStringApiVersionReader("api-version"),
                     new UrlSegmentApiVersionReader(),
@@ -63,15 +64,6 @@ namespace Services.Controllers.API
                 // Enable substitution of API versions in URL templates.
                 options.SubstituteApiVersionInUrl = true;
               });
-
-      // Add security definitions for Bearer tokens.
-      //TODO: options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-      // {
-      //   Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
-      //   Name = "Authorization",
-      //   In = ParameterLocation.Header,
-      //   Type = SecuritySchemeType.ApiKey
-      // });
 
       // Require security schemes for all API endpoints.
       //TODO: options.AddSecurityRequirement(
@@ -110,6 +102,16 @@ namespace Services.Controllers.API
       {
         services.AddOpenApiDocument((options) =>
         {
+          options.AddSecurity("JWT", new OpenApiSecurityScheme
+          {
+            Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+            Name = "Authorization",
+            In = (OpenApiSecurityApiKeyLocation)ApiVersionParameterLocation.Header,
+            Type = OpenApiSecuritySchemeType.ApiKey,           
+          });
+
+          options.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("JWT"));
+
           options.DocumentName = description.GroupName;
           options.ApiGroupNames = new[] { description.GroupName };
           options.UseControllerSummaryAsTagDescription = true;

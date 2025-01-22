@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using Services.Controllers.API.Services;
@@ -17,7 +18,7 @@ public class Program
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
     IServiceCollection services = builder.Services;
     string envName = builder.Environment.EnvironmentName;
- 
+
     // JSON Options  
     JsonSerializerOptions jsonOptions = new JsonSerializerOptions
     {
@@ -57,7 +58,8 @@ public class Program
     }
     #endregion Logger
 
-    services.AddControllers((options) => {
+    services.AddControllers((options) =>
+    {
       // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status200OK));
       // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
       // options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status401Unauthorized));
@@ -80,6 +82,13 @@ public class Program
     services.AddProblemDetails();
 
     // Add essential services to the dependency injection container
+    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+      .AddJwtBearer(options =>
+      {
+        options.Authority = builder.Configuration["Jwt:Authority"];
+        options.Audience = builder.Configuration["Jwt:Audience"];
+        options.RequireHttpsMetadata = false;
+      });
     services.AddAuthorization();
 
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
@@ -103,7 +112,7 @@ public class Program
 
     // ******************* APP ******************************************//
     var app = builder.Build();
-  
+
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
@@ -123,6 +132,7 @@ public class Program
 
     app.UseHttpLogging();
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();
