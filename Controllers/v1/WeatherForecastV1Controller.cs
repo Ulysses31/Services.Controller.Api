@@ -9,7 +9,7 @@ namespace Services.Controllers.API.Controllers.v1;
 [ApiController]
 [ApiVersion("1.0")]
 [Route("api/v{version:apiVersion}/[controller]")]
-[Authorize]
+// [Authorize]
 public class WeatherForecastController : ControllerBase
 {
   /// <summary>
