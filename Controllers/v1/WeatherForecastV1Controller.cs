@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -38,45 +39,51 @@ public class WeatherForecastController : ControllerBase
   public WeatherForecast[] forecast = [
        new WeatherForecast {
         Id = "38b7942a-8a8f-4a34-9744-e4dea6eaed78",
-        Date = DateOnly.FromDateTime(DateTime.Now),
+        Date = DateTime.Now,
         TemperatureC = 25,
         Summary = "Hot"
       },
       new WeatherForecast {
         Id = "3db3a34a-9dcf-42e6-977f-d6bbb2329f16",
-        Date = DateOnly.FromDateTime(DateTime.Now),
+        Date = DateTime.Now,
         TemperatureC = 15,
         Summary = "Cool"
       },
       new WeatherForecast {
         Id = "76d5e039-63b3-4c7f-bb8d-0847f729dcde",
-        Date = DateOnly.FromDateTime(DateTime.Now),
+        Date = DateTime.Now,
         TemperatureC = 5,
         Summary = "Cold"
       },
       new WeatherForecast {
         Id = "1130f076-1d75-4977-8a50-323a4ecf8f4e",
-        Date = DateOnly.FromDateTime(DateTime.Now),
+        Date = DateTime.Now,
         TemperatureC = 35,
         Summary = "Very Hot"
       },
       new WeatherForecast {
         Id = "2fa8d533-c8fd-45e6-8ee4-988e5b1d8d04",
-        Date = DateOnly.FromDateTime(DateTime.Now),
+        Date = DateTime.Now,
         TemperatureC = 20,
         Summary = "Warm"
       }
      ];
 
   private readonly ILogger<WeatherForecastController> _logger;
+  private readonly IValidator<WeatherForecast> _validator;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="WeatherForecastController"/> class.
   /// </summary>
   /// <param name="logger">Logger for the controller.</param>
-  public WeatherForecastController(ILogger<WeatherForecastController> logger)
+  /// <param name="validator">IValidator</param>
+  public WeatherForecastController(
+    ILogger<WeatherForecastController> logger,
+    IValidator<WeatherForecast> validator
+  )
   {
     _logger = logger;
+    _validator = validator;
   }
 
   /// <summary>
@@ -184,18 +191,15 @@ public class WeatherForecastController : ControllerBase
     [FromBody] WeatherForecast newForecast
   )
   {
-    if (newForecast == null)
+    // Validation
+    var validationResult = await _validator.ValidateAsync(newForecast);
+    if (!validationResult.IsValid)
     {
-      return await Task.FromResult<IActionResult>(BadRequest(new ProblemDetails
-      {
-        Title = "Bad Request",
-        Detail = "Weather forecast is required.",
-        Status = StatusCodes.Status400BadRequest
-      }));
+      // var errors = validationResult.Errors.Select(e => e.ErrorMessage);
+      //return Results.BadRequest(errors);
+      return BadRequest(validationResult.ToDictionary());
     }
 
-    //forecast.Id = Guid.NewGuid().ToString();
-    newForecast.Date = DateOnly.FromDateTime(DateTime.Now);
     forecast = [.. forecast, newForecast];
 
     return await Task.FromResult<IActionResult>(
@@ -253,6 +257,15 @@ public class WeatherForecastController : ControllerBase
         Detail = "Id is required.",
         Status = StatusCodes.Status400BadRequest
       }));
+    }
+
+    // Validation
+    var validationResult = await _validator.ValidateAsync(newForecast);
+    if (!validationResult.IsValid)
+    {
+      // var errors = validationResult.Errors.Select(e => e.ErrorMessage);
+      //return Results.BadRequest(errors);
+      return BadRequest(validationResult.ToDictionary());
     }
 
     if (forecast == null)

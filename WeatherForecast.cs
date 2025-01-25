@@ -16,7 +16,7 @@ namespace Services.Controllers.API
     /// <summary>
     /// Gets or sets the date of the weather forecast.
     /// </summary>
-    public DateOnly Date { get; set; }
+    public DateTime Date { get; set; }
 
     /// <summary>
     /// Gets or sets the temperature in Celsius for the forecasted date.

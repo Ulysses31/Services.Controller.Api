@@ -3,11 +3,13 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Encodings.Web;
 using System.Text.Json;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
 using Services.Controllers.API.RateLimit;
 using Services.Controllers.API.Services;
+using Services.Controllers.API.Validator;
 
 namespace Services.Controllers.API;
 
@@ -120,6 +122,9 @@ public class Program
     //     DbTypeEnum.MsSql,
     //     $"Server={server},{port};Database={database};User={user};Password={password};TrustServerCertificate=True"
     // );
+
+    // Add FluentValidation to the dependency injection container
+    services.AddScoped<IValidator<WeatherForecast>, DtoValidator>();
 
     // ******************* APP ******************************************//
     var app = builder.Build();

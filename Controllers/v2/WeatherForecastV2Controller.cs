@@ -37,31 +37,31 @@ public class WeatherForecastController : ControllerBase
   public WeatherForecast[] forecast = [
        new WeatherForecast {
         Id = "38b7942a-8a8f-4a34-9744-e4dea6eaed78",
-        Date = DateOnly.FromDateTime(DateTime.Now),
+        Date =DateTime.Now,
         TemperatureC = 25,
         Summary = "Hot"
       },
       new WeatherForecast {
         Id = "3db3a34a-9dcf-42e6-977f-d6bbb2329f16",
-        Date = DateOnly.FromDateTime(DateTime.Now),
+        Date =DateTime.Now,
         TemperatureC = 15,
         Summary = "Cool"
       },
       new WeatherForecast {
         Id = "76d5e039-63b3-4c7f-bb8d-0847f729dcde",
-        Date = DateOnly.FromDateTime(DateTime.Now),
+        Date =DateTime.Now,
         TemperatureC = 5,
         Summary = "Cold"
       },
       new WeatherForecast {
         Id = "1130f076-1d75-4977-8a50-323a4ecf8f4e",
-        Date = DateOnly.FromDateTime(DateTime.Now),
+        Date =DateTime.Now,
         TemperatureC = 35,
         Summary = "Very Hot"
       },
       new WeatherForecast {
         Id = "2fa8d533-c8fd-45e6-8ee4-988e5b1d8d04",
-        Date = DateOnly.FromDateTime(DateTime.Now),
+        Date =DateTime.Now,
         TemperatureC = 20,
         Summary = "Warm"
       }
