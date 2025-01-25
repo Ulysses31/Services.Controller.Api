@@ -4,10 +4,12 @@
     "dictionaryDefinitions": [],
     "dictionaries": [],
     "words": [
+        "DPAPI",
         "Iordanidis",
         "LICX",
         "Serilog",
-        "Swashbuckle"
+        "Swashbuckle",
+        "weatherforecast"
     ],
     "ignoreWords": [],
     "import": []

@@ -124,6 +124,21 @@ public class Program
     // ******************* APP ******************************************//
     var app = builder.Build();
 
+    // Middleware to log the start and end of each request
+    app.Use(async (context, next) =>
+    {
+      await Task.Run(async () =>
+      {
+        await new Shared().LogUserActivity(
+        context,
+        next,
+        _logger,
+        requesterInfo,
+        jsonOptions
+      );
+      });
+    });
+
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())
     {
