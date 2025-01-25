@@ -114,6 +114,13 @@ public class Program
     // Rate Limiting
     services.CommonRateLimitSetup();
 
+    // Health Checks
+    // services.CommonHealthCheckSetup<AuthorDbContextV1>(
+    //     $"https://publications.io:7000/api/v1/publications/author",
+    //     DbTypeEnum.MsSql,
+    //     $"Server={server},{port};Database={database};User={user};Password={password};TrustServerCertificate=True"
+    // );
+
     // ******************* APP ******************************************//
     var app = builder.Build();
 
