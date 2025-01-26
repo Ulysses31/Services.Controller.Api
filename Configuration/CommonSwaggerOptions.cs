@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Services.Controllers.API
+namespace Services.Controllers.API.Configuration
 {
   /// <summary>
   /// Represents configuration options for Swagger documentation.

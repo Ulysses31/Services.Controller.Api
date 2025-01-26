@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation.Processors.Security;
+using Services.Controllers.API.Configuration;
 
 namespace Services.Controllers.API
 {

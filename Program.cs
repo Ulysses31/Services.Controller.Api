@@ -7,6 +7,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using Services.Controllers.API.Configuration;
 using Services.Controllers.API.Mapping;
 using Services.Controllers.API.Models;
 using Services.Controllers.API.RateLimit;
@@ -22,7 +23,11 @@ public class Program
     RequesterInfo requesterInfo = new RequesterInfo();
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
     IServiceCollection services = builder.Services;
+    ConfigurationManager configuration = builder.Configuration;
+    configuration.GetSection(CommonAppOptions.AppOptions)
+                 .Bind(new CommonAppOptions());
     string envName = builder.Environment.EnvironmentName;
+
 
     // JSON Options  
     JsonSerializerOptions jsonOptions = new JsonSerializerOptions
@@ -112,18 +117,26 @@ public class Program
     // Add hosted service to the dependency injection container
     if (envName.Equals("Development", StringComparison.Ordinal))
     {
-      services.AddHostedService<GenApiHostedService>();
+      if (CommonAppOptions.EnableGenApiClient)
+      {
+        services.AddHostedService<GenApiHostedService>();
+      }
     }
 
     // Rate Limiting
-    services.CommonRateLimitSetup();
+    if (CommonAppOptions.EnableRateLimiting)
+    {
+      services.CommonRateLimitSetup();
+    }
 
     // Health Checks
-    // services.CommonHealthCheckSetup<AuthorDbContextV1>(
-    //     $"https://publications.io:7000/api/v1/publications/author",
-    //     DbTypeEnum.MsSql,
-    //     $"Server={server},{port};Database={database};User={user};Password={password};TrustServerCertificate=True"
-    // );
+    // if (CommonAppOptions.EnableHealthCheck) {
+    //   services.CommonHealthCheckSetup<AuthorDbContextV1>(
+    //       $"https://publications.io:7000/api/v1/publications/author",
+    //       DbTypeEnum.MsSql,
+    //       $"Server={server},{port};Database={database};User={user};Password={password};TrustServerCertificate=True"
+    //   );
+    // }
 
     // Mapping
     services.AddAutoMapper(typeof(MappingProfile));
@@ -155,7 +168,11 @@ public class Program
       app.UseDeveloperExceptionPage();
       app.UseExceptionHandler("/error-development");
       app.UseCommonSwagger();
-      // app.UseOutputCache();
+
+      if (CommonAppOptions.EnableApiCache)
+      {
+        // app.UseOutputCache();
+      }
     }
     else
     {
@@ -173,7 +190,10 @@ public class Program
 
     app.MapControllers();
 
-    app.UseRateLimiter();
+    if (CommonAppOptions.EnableRateLimiting)
+    {
+      app.UseRateLimiter();
+    }
 
     _logger.Information("===> Environment: {envName}", envName);
     _logger.Information("===> Host: {HostIpAddress}", requesterInfo.hostInfo.Addr);
