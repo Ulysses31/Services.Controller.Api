@@ -4,9 +4,17 @@
     "dictionaryDefinitions": [],
     "dictionaries": [],
     "words": [
+        "aspnet",
+        "ASPNETCORE",
+        "buildtransitive",
+        "certpath",
+        "certstorelocation",
+        "contentfiles",
         "DPAPI",
         "Iordanidis",
         "LICX",
+        "localmachine",
+        "Npgsql",
         "Serilog",
         "Swashbuckle",
         "weatherforecast"

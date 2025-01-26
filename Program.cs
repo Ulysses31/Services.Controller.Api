@@ -1,15 +1,17 @@
-
+using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Serilog;
 using Services.Controllers.API.Configuration;
+using Services.Controllers.API.Database.Contexts;
+using Services.Controllers.API.Database.Models;
 using Services.Controllers.API.Mapping;
-using Services.Controllers.API.Models;
 using Services.Controllers.API.RateLimit;
 using Services.Controllers.API.Services;
 using Services.Controllers.API.Validator;
@@ -143,6 +145,27 @@ public class Program
 
     // Add FluentValidation to the dependency injection container
     services.AddScoped<IValidator<WeatherForecastDto>, DtoValidator>();
+
+    // Database Context
+    services.AddDbContext<ServicesDbContext>(options =>
+    {
+      // _ = options.UseSqlServer(
+      //     $"Server={server},{port};Database={database};User={user};Password={password};Encrypt=Optional;TrustServerCertificate=True"
+      // )
+      _ = options.UseSqlite(builder.Configuration["ConnectionStrings:SqlLiteConnection"])
+      .LogTo(
+          message => Console.WriteLine(message),
+          envName == "Development" ? LogLevel.Trace : LogLevel.Error,
+          DbContextLoggerOptions.DefaultWithUtcTime
+      )
+      .LogTo(
+          message => Debug.WriteLine(message),
+          envName == "Development" ? LogLevel.Trace : LogLevel.Error,
+          DbContextLoggerOptions.DefaultWithUtcTime
+      )
+       .EnableDetailedErrors(envName.Equals("Development", StringComparison.Ordinal))
+       .EnableSensitiveDataLogging(envName.Equals("Development", StringComparison.Ordinal));
+    });
 
     // ******************* APP ******************************************//
     var app = builder.Build();

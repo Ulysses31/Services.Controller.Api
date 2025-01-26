@@ -1,4 +1,5 @@
 using AutoMapper;
+using Services.Controllers.API.Database.Models;
 using Services.Controllers.API.Models;
 
 namespace Services.Controllers.API.Mapping

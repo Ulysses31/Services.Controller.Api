@@ -49,6 +49,21 @@ dotnet dev-certs https --trust
 
 -->
 
+## Entity Framework Migrations
+```bash
+dotnet-ef migrations add -o Database/Migrations InitialCreate -v
+```
+
+## Entity Framework Update Database
+```bash
+dotnet-ef database update -v
+```
+
+## Entity Framework Drop Database
+```bash
+dotnet-ef database drop -v
+```
+
 ## K6 Test
   Open CLI and type...
 ```bash

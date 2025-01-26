@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
-using Services.Controllers.API.Models;
+using Services.Controllers.API.Database.Models;
 using Services.Controllers.API.RateLimit;
 
 namespace Services.Controllers.API.Controllers.v2;
