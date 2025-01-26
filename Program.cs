@@ -7,6 +7,8 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using Services.Controllers.API.Mapping;
+using Services.Controllers.API.Models;
 using Services.Controllers.API.RateLimit;
 using Services.Controllers.API.Services;
 using Services.Controllers.API.Validator;
@@ -103,7 +105,7 @@ public class Program
     // });
 
     // Configures Swagger/OpenAPI for API documentation.
-    services.CommonSwaggerSetup<WeatherForecast>(
+    services.CommonSwaggerSetup<WeatherForecastDto>(
       $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"
     );
 
@@ -123,8 +125,11 @@ public class Program
     //     $"Server={server},{port};Database={database};User={user};Password={password};TrustServerCertificate=True"
     // );
 
+    // Mapping
+    services.AddAutoMapper(typeof(MappingProfile));
+
     // Add FluentValidation to the dependency injection container
-    services.AddScoped<IValidator<WeatherForecast>, DtoValidator>();
+    services.AddScoped<IValidator<WeatherForecastDto>, DtoValidator>();
 
     // ******************* APP ******************************************//
     var app = builder.Build();

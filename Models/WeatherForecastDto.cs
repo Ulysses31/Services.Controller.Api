@@ -1,11 +1,11 @@
 using System.Xml.Serialization;
 
-namespace Services.Controllers.API
+namespace Services.Controllers.API.Models
 {
   /// <summary>
   /// Represents a weather forecast for a specific date, including temperature in Celsius and Fahrenheit, and a summary description.
   /// </summary>
-  public class WeatherForecast
+  public class WeatherForecastDto
   {
     /// <summary>
     /// Gets or sets the unique identifier for the weather forecast.

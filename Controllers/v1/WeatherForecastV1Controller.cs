@@ -1,7 +1,9 @@
+using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Services.Controllers.API.Models;
 using Services.Controllers.API.RateLimit;
 
 namespace Services.Controllers.API.Controllers.v1;
@@ -36,32 +38,32 @@ public class WeatherForecastController : ControllerBase
   /// <summary>
   /// In-memory storage for weather forecasts.
   /// </summary>
-  public WeatherForecast[] forecast = [
-       new WeatherForecast {
+  public WeatherForecastDto[] forecast = [
+       new WeatherForecastDto {
         Id = "38b7942a-8a8f-4a34-9744-e4dea6eaed78",
         Date = DateTime.Now,
         TemperatureC = 25,
         Summary = "Hot"
       },
-      new WeatherForecast {
+      new WeatherForecastDto {
         Id = "3db3a34a-9dcf-42e6-977f-d6bbb2329f16",
         Date = DateTime.Now,
         TemperatureC = 15,
         Summary = "Cool"
       },
-      new WeatherForecast {
+      new WeatherForecastDto {
         Id = "76d5e039-63b3-4c7f-bb8d-0847f729dcde",
         Date = DateTime.Now,
         TemperatureC = 5,
         Summary = "Cold"
       },
-      new WeatherForecast {
+      new WeatherForecastDto {
         Id = "1130f076-1d75-4977-8a50-323a4ecf8f4e",
         Date = DateTime.Now,
         TemperatureC = 35,
         Summary = "Very Hot"
       },
-      new WeatherForecast {
+      new WeatherForecastDto {
         Id = "2fa8d533-c8fd-45e6-8ee4-988e5b1d8d04",
         Date = DateTime.Now,
         TemperatureC = 20,
@@ -70,20 +72,24 @@ public class WeatherForecastController : ControllerBase
      ];
 
   private readonly ILogger<WeatherForecastController> _logger;
-  private readonly IValidator<WeatherForecast> _validator;
+  private readonly IValidator<WeatherForecastDto> _validator;
+  private readonly IMapper _mapper;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="WeatherForecastController"/> class.
   /// </summary>
   /// <param name="logger">Logger for the controller.</param>
   /// <param name="validator">IValidator</param>
+  /// <param name="mapper">IMapper</param>
   public WeatherForecastController(
     ILogger<WeatherForecastController> logger,
-    IValidator<WeatherForecast> validator
+    IValidator<WeatherForecastDto> validator,
+    IMapper mapper
   )
   {
     _logger = logger;
     _validator = validator;
+    _mapper = mapper;
   }
 
   /// <summary>
@@ -98,11 +104,13 @@ public class WeatherForecastController : ControllerBase
   // [Tags(["weather-forecast"])]
   [MapToApiVersion("1.0")]
   [EndpointName("WeatherForecast")]
-  [ProducesResponseType<IEnumerable<WeatherForecast>>(StatusCodes.Status200OK, "application/json")]
+  [ProducesResponseType<IEnumerable<WeatherForecastResponse>>(StatusCodes.Status200OK, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/json")]
   // [ApiExplorerSettings(IgnoreApi = true)]  
   public async Task<IActionResult> Get()
   {
+    WeatherForecastResponse[] resp = _mapper.Map<WeatherForecastResponse[]>(forecast);
+
     return await Task.FromResult<IActionResult>(Ok(forecast));
   }
 
@@ -122,7 +130,7 @@ public class WeatherForecastController : ControllerBase
   // [Tags(["weather-forecast"])]
   [MapToApiVersion("1.0")]
   [EndpointName("WeatherForecastById")]
-  [ProducesResponseType<WeatherForecast>(StatusCodes.Status200OK, "application/json")]
+  [ProducesResponseType<WeatherForecastResponse>(StatusCodes.Status200OK, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/json")]
@@ -139,9 +147,9 @@ public class WeatherForecastController : ControllerBase
       }));
     }
 
-    WeatherForecast? result = forecast.FirstOrDefault(x => x.Id == id);
+    WeatherForecastDto? resultDto = forecast.FirstOrDefault(x => x.Id == id);
 
-    if (result == null)
+    if (resultDto == null)
     {
       return await Task.FromResult<IActionResult>(
         NotFound(new ProblemDetails
@@ -151,6 +159,8 @@ public class WeatherForecastController : ControllerBase
           Status = StatusCodes.Status404NotFound
         }));
     }
+
+    WeatherForecastResponse result = _mapper.Map<WeatherForecastResponse>(resultDto);
 
     return Ok(result);
   }
@@ -183,12 +193,12 @@ public class WeatherForecastController : ControllerBase
   // [Tags(["weather-forecast"])]
   [MapToApiVersion("1.0")]
   [EndpointName("WeatherForecastCreate")]
-  [ProducesResponseType<WeatherForecast>(StatusCodes.Status201Created, "application/json")]
+  [ProducesResponseType<WeatherForecastResponse>(StatusCodes.Status201Created, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/json")]
   [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/json")]
   // [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> Create(
-    [FromBody] WeatherForecast newForecast
+    [FromBody] WeatherForecastDto newForecast
   )
   {
     // Validation
@@ -220,7 +230,7 @@ public class WeatherForecastController : ControllerBase
   /// This is a WeatherForecast update summary.
   /// Sample request:
   ///
-  ///     POST /WeatherForecast
+  ///     PUT /WeatherForecast
   ///     {
   ///        "id": 1,
   ///        "date": "2025-01-14",
@@ -246,7 +256,7 @@ public class WeatherForecastController : ControllerBase
   // [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> Update(
     string id,
-    [FromBody] WeatherForecast newForecast
+    [FromBody] WeatherForecastDto newForecast
   )
   {
     if (string.IsNullOrWhiteSpace(id))
@@ -278,7 +288,7 @@ public class WeatherForecastController : ControllerBase
       }));
     }
 
-    WeatherForecast? result = forecast.FirstOrDefault(x => x.Id == id);
+    WeatherForecastDto? result = forecast.FirstOrDefault(x => x.Id == id);
 
     if (result == null)
     {
@@ -301,7 +311,13 @@ public class WeatherForecastController : ControllerBase
   /// <summary>
   /// Deletes a weather forecast by ID.
   /// </summary>
-  /// <remarks>This is a WeatherForecast delete summary.</remarks>
+  /// <remarks>
+  /// This is a WeatherForecast delete summary.
+  /// Sample request:
+  /// 
+  ///     DELETE /WeatherForecast/38b7942a-8a8f-4a34-9744-e4dea6eaed78 
+  /// 
+  /// </remarks>
   /// <param name="id">The ID of the forecast to delete.</param>
   /// <returns>No content if deletion is successful.</returns>
   /// <response code="204">Returns no content if succeeded</response>
@@ -330,7 +346,7 @@ public class WeatherForecastController : ControllerBase
       }));
     }
 
-    WeatherForecast? result = forecast.FirstOrDefault(x => x.Id == id);
+    WeatherForecastDto? result = forecast.FirstOrDefault(x => x.Id == id);
 
     if (result == null)
     {
