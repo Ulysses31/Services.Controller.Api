@@ -6,6 +6,7 @@ using NSwag;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.TypeScript;
 using Serilog.Core;
+using Services.Controllers.API.Database.Models;
 using Services.Controllers.API.Services;
 
 namespace Services.Controllers.API
@@ -115,7 +116,39 @@ namespace Services.Controllers.API
         ResponseBody = respBody
       };
 
-      _logger.Information(JsonSerializer.Serialize(requesterInfo, jsonOptions));
+      // Log user activity to database
+      // _logger.Information(JsonSerializer.Serialize(requesterInfo, jsonOptions));
+      UserActivityLogDto userActivityLogDto = new UserActivityLogDto()
+      {
+        SourceName = requesterInfo.reqInfo.SourceName,
+        OsVersion = requesterInfo.reqInfo.OsVersion,
+        Host = requesterInfo.hostInfo.Hostname,
+        Username = requesterInfo.hostInfo.Username,
+        DomainName = requesterInfo.hostInfo.userDomainName,
+        Address = requesterInfo.hostInfo.Addr,
+        RequestMethod = requesterInfo.RequestMethod,
+        RequestPath = requesterInfo.RequestPath,
+        RequestBody = requesterInfo.RequestBody,
+        RequestHeaders = requesterInfo.RequestHeaders,
+        ResponseHeaders = requesterInfo.ResponseHeaders,
+        ResponseStatusCode = requesterInfo.ResponseStatusCode,
+        ResponseBody = requesterInfo.ResponseBody,
+        RequestTime = DateTime.Now.ToString(),
+        CreatedBy = "System"
+      };
+
+      using (var scope = context.RequestServices.CreateScope())
+      {
+        try
+        {
+          var _userActivityDbRepo = scope.ServiceProvider.GetRequiredService<UserActivityDbRepo>();
+          await _userActivityDbRepo.CreateAsync(userActivityLogDto);
+        }
+        catch (System.Exception ex)
+        {
+          throw new Exception(ex.Message, ex.InnerException);
+        }
+      }
 
       _logger.Information($"===> Request finished at: {DateTime.Now}");
     }

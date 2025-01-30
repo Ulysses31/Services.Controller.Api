@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Services.Controllers.API.Database.Models;
 using Services.Controllers.API.Models;
 using Services.Controllers.API.RateLimit;
+using Services.Controllers.API.Services;
 
 namespace Services.Controllers.API.Controllers.v1;
 
@@ -18,62 +19,10 @@ namespace Services.Controllers.API.Controllers.v1;
 // [Authorize]
 public class WeatherForecastController : ControllerBase
 {
-  /// <summary>
-  /// Static list of weather summaries.
-  /// </summary>
-  private static readonly string[] Summaries = new[]
-   {
-    "Freezing",
-    "Bracing",
-    "Chilly",
-    "Cool",
-    "Mild",
-    "Warm",
-    "Balmy",
-    "Hot",
-    "Sweltering",
-    "Scorching"
-  };
-
-  /// <summary>
-  /// In-memory storage for weather forecasts.
-  /// </summary>
-  public WeatherForecastDto[] forecast = [
-       new WeatherForecastDto {
-        Id = "38b7942a-8a8f-4a34-9744-e4dea6eaed78",
-        Date = DateTime.Now,
-        TemperatureC = 25,
-        Summary = "Hot"
-      },
-      new WeatherForecastDto {
-        Id = "3db3a34a-9dcf-42e6-977f-d6bbb2329f16",
-        Date = DateTime.Now,
-        TemperatureC = 15,
-        Summary = "Cool"
-      },
-      new WeatherForecastDto {
-        Id = "76d5e039-63b3-4c7f-bb8d-0847f729dcde",
-        Date = DateTime.Now,
-        TemperatureC = 5,
-        Summary = "Cold"
-      },
-      new WeatherForecastDto {
-        Id = "1130f076-1d75-4977-8a50-323a4ecf8f4e",
-        Date = DateTime.Now,
-        TemperatureC = 35,
-        Summary = "Very Hot"
-      },
-      new WeatherForecastDto {
-        Id = "2fa8d533-c8fd-45e6-8ee4-988e5b1d8d04",
-        Date = DateTime.Now,
-        TemperatureC = 20,
-        Summary = "Warm"
-      }
-     ];
-
   private readonly ILogger<WeatherForecastController> _logger;
   private readonly IValidator<WeatherForecastDto> _validator;
   private readonly IMapper _mapper;
+  private readonly ServicesApiDbRepo _services;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="WeatherForecastController"/> class.
@@ -81,15 +30,18 @@ public class WeatherForecastController : ControllerBase
   /// <param name="logger">Logger for the controller.</param>
   /// <param name="validator">IValidator</param>
   /// <param name="mapper">IMapper</param>
+  /// <param name="services">ServicesApiDbRepo</param>
   public WeatherForecastController(
     ILogger<WeatherForecastController> logger,
     IValidator<WeatherForecastDto> validator,
-    IMapper mapper
+    IMapper mapper,
+    ServicesApiDbRepo services
   )
   {
     _logger = logger;
     _validator = validator;
     _mapper = mapper;
+    _services = services;
   }
 
   /// <summary>
@@ -109,9 +61,11 @@ public class WeatherForecastController : ControllerBase
   // [ApiExplorerSettings(IgnoreApi = true)]  
   public async Task<IActionResult> Get()
   {
+    IQueryable<WeatherForecastDto> forecast = await _services.FilterAsync();
+
     WeatherForecastResponse[] resp = _mapper.Map<WeatherForecastResponse[]>(forecast);
 
-    return await Task.FromResult<IActionResult>(Ok(forecast));
+    return await Task.FromResult<IActionResult>(Ok(resp));
   }
 
 
@@ -147,7 +101,10 @@ public class WeatherForecastController : ControllerBase
       }));
     }
 
-    WeatherForecastDto? resultDto = forecast.FirstOrDefault(x => x.Id == id);
+    IEnumerable<WeatherForecastDto> resultDtoList
+      = await _services.FilterAsync(x => x.Id == id);
+
+    WeatherForecastDto? resultDto = resultDtoList.FirstOrDefault();
 
     if (resultDto == null)
     {
@@ -210,7 +167,7 @@ public class WeatherForecastController : ControllerBase
       return BadRequest(validationResult.ToDictionary());
     }
 
-    forecast = [.. forecast, newForecast];
+    await _services.CreateAsync(newForecast);
 
     return await Task.FromResult<IActionResult>(
       CreatedAtAction(
@@ -278,7 +235,7 @@ public class WeatherForecastController : ControllerBase
       return BadRequest(validationResult.ToDictionary());
     }
 
-    if (forecast == null)
+    if (newForecast == null)
     {
       return await Task.FromResult<IActionResult>(BadRequest(new ProblemDetails
       {
@@ -288,22 +245,7 @@ public class WeatherForecastController : ControllerBase
       }));
     }
 
-    WeatherForecastDto? result = forecast.FirstOrDefault(x => x.Id == id);
-
-    if (result == null)
-    {
-      return await Task.FromResult<IActionResult>(
-        NotFound(new ProblemDetails
-        {
-          Title = "Not Found",
-          Detail = "Weather forecast not found.",
-          Status = StatusCodes.Status404NotFound
-        }));
-    }
-
-    result.Date = newForecast.Date;
-    result.TemperatureC = newForecast.TemperatureC;
-    result.Summary = newForecast.Summary;
+    await _services.UpdateAsync(x => x.Id == id, newForecast);
 
     return await Task.FromResult<IActionResult>(NoContent());
   }
@@ -346,9 +288,12 @@ public class WeatherForecastController : ControllerBase
       }));
     }
 
-    WeatherForecastDto? result = forecast.FirstOrDefault(x => x.Id == id);
+    IEnumerable<WeatherForecastDto> resultDtoList
+      = await _services.FilterAsync(x => x.Id == id);
 
-    if (result == null)
+    WeatherForecastDto? resultDto = resultDtoList.FirstOrDefault();
+
+    if (resultDto is null)
     {
       return await Task.FromResult<IActionResult>(
         NotFound(new ProblemDetails
@@ -359,7 +304,7 @@ public class WeatherForecastController : ControllerBase
         }));
     }
 
-    forecast = forecast.Where(x => x.Id != id).ToArray();
+    await _services.DeleteAsync(resultDto);
 
     return await Task.FromResult<IActionResult>(NoContent());
   }

@@ -4,20 +4,24 @@ using System.Linq;
 using System.Threading.Tasks;
 
 namespace Services.Controllers.API.Database.Models;
+
+/// <summary>
+/// Represents the base entity for database models, providing common properties.
+/// </summary>
 public class BaseEntity
 {
   /// <summary>
-  /// Who created the record.
+  /// Gets or sets the user who created the record.
   /// </summary>
-  public String? CreatedBy { get; set; }
+  public string? CreatedBy { get; set; }
 
   /// <summary>
-  /// Date and time the record was created.
+  /// Gets or sets the date and time the record was created.
   /// </summary>
   public DateTime CreatedDate { get; set; }
 
   /// <summary>
-  /// Date and time the record was last updated.
+  /// Gets or sets the date and time the record was last updated.
   /// </summary>
   public DateTime? ModifiedDate { get; set; }
 }

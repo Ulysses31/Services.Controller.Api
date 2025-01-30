@@ -166,6 +166,10 @@ public class Program
        .EnableDetailedErrors(envName.Equals("Development", StringComparison.Ordinal))
        .EnableSensitiveDataLogging(envName.Equals("Development", StringComparison.Ordinal));
     });
+    
+    // database repo services
+    services.AddScoped<ServicesApiDbRepo>();
+    services.AddScoped<UserActivityDbRepo>();
 
     // ******************* APP ******************************************//
     var app = builder.Build();

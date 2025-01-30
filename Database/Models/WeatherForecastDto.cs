@@ -18,7 +18,7 @@ namespace Services.Controllers.API.Database.Models
     /// <summary>
     /// Gets or sets the date of the weather forecast.
     /// </summary>
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
 
     /// <summary>
     /// Gets or sets the temperature in Celsius for the forecasted date.
