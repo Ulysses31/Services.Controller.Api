@@ -16,6 +16,7 @@ namespace Services.Controllers.API.Mapping
     /// </summary>
     public MappingProfile()
     {
+      CreateMap<PagedResult<WeatherForecastDto>, PagedResultResponse<WeatherForecastResponse>>();
       CreateMap<WeatherForecastDto, WeatherForecastResponse>();
     }
   }

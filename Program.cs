@@ -152,7 +152,10 @@ public class Program
       // _ = options.UseSqlServer(
       //     $"Server={server},{port};Database={database};User={user};Password={password};Encrypt=Optional;TrustServerCertificate=True"
       // )
-      _ = options.UseSqlite(builder.Configuration["ConnectionStrings:SqlLiteConnection"])
+      options.UseSqlite(
+        builder.Configuration["ConnectionStrings:SqlLiteConnection"],
+        o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
+      )
       .LogTo(
           message => Console.WriteLine(message),
           envName == "Development" ? LogLevel.Trace : LogLevel.Error,
@@ -164,7 +167,15 @@ public class Program
           DbContextLoggerOptions.DefaultWithUtcTime
       )
        .EnableDetailedErrors(envName.Equals("Development", StringComparison.Ordinal))
-       .EnableSensitiveDataLogging(envName.Equals("Development", StringComparison.Ordinal));
+       .EnableSensitiveDataLogging(envName.Equals("Development", StringComparison.Ordinal))
+       .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll)
+       .UseLazyLoadingProxies(o => {});
+       // .UseAsyncSeeding(
+       //    async (context, _, token) =>
+       //    {
+       //      await context.Database.EnsureCreatedAsync(token);
+       //    }
+       // );
     });
     
     // database repo services

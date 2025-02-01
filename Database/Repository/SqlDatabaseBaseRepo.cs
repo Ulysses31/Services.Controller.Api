@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using Services.Controllers.API.Configuration;
+using Services.Controllers.API.Database.Models;
 
 namespace Services.Controllers.API.Database.Repository;
 
@@ -60,6 +62,13 @@ public abstract class SqlDatabaseBaseRepo<TEntity> where TEntity : class
   #endregion Sync Methods
 
   #region Async Methods
+
+  /// <summary>
+  /// Asynchronously retrieves entities that match the given pagination query.
+  /// </summary>
+  /// <param name="paginationQuery">PaginationQuery</param>
+  /// <returns></returns>
+  public abstract Task<PagedResult<TEntity>> FilterPaginationAsync(PaginationQuery paginationQuery);
 
   /// <summary>
   /// Asynchronously retrieves all entities as a queryable collection.

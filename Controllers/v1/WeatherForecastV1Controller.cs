@@ -2,6 +2,7 @@ using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using Services.Controllers.API.Configuration;
 using Services.Controllers.API.Database.Models;
 using Services.Controllers.API.Models;
 using Services.Controllers.API.RateLimit;
@@ -42,6 +43,33 @@ public class WeatherForecastController : ControllerBase
     _validator = validator;
     _mapper = mapper;
     _services = services;
+  }
+
+  /// <summary>
+  /// Retrieves all weather forecasts paginated.
+  /// </summary>
+  /// <remarks>This is a paginated WeatherForecast list summary.</remarks>> 
+  /// <returns>A paginated list of weather forecasts.</returns>
+  /// <response code="200">Returns weather forecast paginated list</response>
+  /// <response code="429">Returns to many requests</response>
+  /// <response code="500">For a bad request</response>
+  [HttpGet("paginated")]
+  // [Tags(["weather-forecast"])]
+  [MapToApiVersion("1.0")]
+  [EndpointName("WeatherForecastPaginated")]
+  [ProducesResponseType<PagedResultResponse<WeatherForecastResponse>>(StatusCodes.Status200OK, "application/json")]
+  [ProducesResponseType<ProblemDetails>(StatusCodes.Status500InternalServerError, "application/json")]
+  public async Task<IActionResult> GetPaginated(
+    [FromQuery] PaginationQuery paginationQuery
+  )
+  {
+    PagedResult<WeatherForecastDto> tempResp 
+      = await _services.FilterPaginationAsync(paginationQuery);
+    
+    PagedResultResponse<WeatherForecastResponse> resp 
+      = _mapper.Map<PagedResultResponse<WeatherForecastResponse>>(tempResp); 
+    
+    return await Task.FromResult<IActionResult>(Ok(resp));
   }
 
   /// <summary>

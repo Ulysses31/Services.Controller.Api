@@ -17,12 +17,12 @@ namespace Services.Controllers.API.Database.Contexts
     /// <summary>
     /// Gets or sets the DbSet for WeatherForecast entities.
     /// </summary>
-    public DbSet<WeatherForecastDto> weatherForecasts { get; set; }
+    public DbSet<WeatherForecastDto> WeatherForecasts { get; set; }
 
     /// <summary>
     /// Gets or sets the DbSet for UserActivity entities.
     /// </summary>
-    public DbSet<UserActivityLogDto> userActivities { get; set; }
+    public DbSet<UserActivityLogDto> UserActivities { get; set; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ServicesDbContext"/> class with the specified options and logger.

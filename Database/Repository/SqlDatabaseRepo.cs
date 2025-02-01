@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Services.Controllers.API.Configuration;
+using Services.Controllers.API.Database.Models;
 
 namespace Services.Controllers.API.Database.Repository;
 
@@ -93,6 +94,13 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   #region Async Methods
 
   /// <inheritdoc/>
+  public override async Task<PagedResult<TEntity>> FilterPaginationAsync(PaginationQuery paginationQuery)
+  {
+    var query = _context.Set<TEntity>().OrderBy(x => x).AsQueryable();
+    return await query.ToPagedResultAsync(paginationQuery);
+  }
+
+  /// <inheritdoc/>
   public override async Task<IQueryable<TEntity>> FilterAsync()
   {
     return await Task.FromResult(_context.Set<TEntity>());
@@ -169,4 +177,8 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   {
     return await context.SaveChangesAsync();
   }
+
+
+
+
 }
