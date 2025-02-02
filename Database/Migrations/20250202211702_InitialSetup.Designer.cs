@@ -11,7 +11,7 @@ using Services.Controllers.API.Database.Contexts;
 namespace Services.Controllers.API.Database.Migrations
 {
     [DbContext(typeof(ServicesDbContext))]
-    [Migration("20250202183427_InitialSetup")]
+    [Migration("20250202211702_InitialSetup")]
     partial class InitialSetup
     {
         /// <inheritdoc />
