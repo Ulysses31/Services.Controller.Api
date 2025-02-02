@@ -11,6 +11,11 @@ namespace Services.Controllers.API.Database.Models;
 public class BaseEntity
 {
   /// <summary>
+  /// Gets a value indicating whether there is a previous page version. 
+  /// </summary>
+  public Guid Version { get; set; }
+
+  /// <summary>
   /// Gets or sets the user who created the record.
   /// </summary>
   public string? CreatedBy { get; set; }

@@ -152,6 +152,12 @@ namespace Services.Controllers.API.Database.Contexts
               .HasColumnName("ResponseBody")
               .HasColumnType("text");
 
+        entity.Property(key => key.Version)
+              .HasComment("The version of the data entry.")
+              .HasColumnName("RowVersion")
+              // .HasColumnType("varchar")
+              .IsConcurrencyToken();
+
         entity.Property(key => key.CreatedBy)
               .HasMaxLength(100)
               .HasComment("Who created the record.")
@@ -214,6 +220,12 @@ namespace Services.Controllers.API.Database.Contexts
               .HasColumnType("text")
               .IsRequired();
 
+        entity.Property(key => key.Version)
+              .HasComment("The version of the data entry.")
+              .HasColumnName("RowVersion")
+              //.HasColumnType("varchar")
+              .IsConcurrencyToken();
+
         entity.Property(key => key.CreatedBy)
               .HasMaxLength(100)
               .HasComment("Who created the record.")
@@ -235,8 +247,9 @@ namespace Services.Controllers.API.Database.Contexts
             Id = new Guid("38b7942a-8a8f-4a34-9744-e4dea6eaed78").ToString(),
             Date = DateOnly.Parse(new DateTime(2025, 01, 04).ToString("yyyy-MM-dd")),
             TemperatureC = 25,
-            TemperatureF = (int)(25 / 0.5556),
+            TemperatureF = 32 + (int)(25 / 0.5556),
             Summary = "Hot",
+            Version = new Guid("38b7942a-8a8f-4a34-9744-e4dea6eaed78"),
             CreatedBy = "System",
             CreatedDate = new DateTime(2025, 01, 04)
           },
@@ -245,8 +258,9 @@ namespace Services.Controllers.API.Database.Contexts
             Id = new Guid("3db3a34a-9dcf-42e6-977f-d6bbb2329f16").ToString(),
             Date = DateOnly.Parse(new DateTime(2025, 01, 07).ToString("yyyy-MM-dd")),
             TemperatureC = 15,
-            TemperatureF = (int)(15 / 0.5556),
+            TemperatureF = 32 + (int)(15 / 0.5556),
             Summary = "Cool",
+            Version = new Guid("3db3a34a-9dcf-42e6-977f-d6bbb2329f16"),
             CreatedBy = "System",
             CreatedDate = new DateTime(2025, 01, 07)
           },
@@ -255,8 +269,9 @@ namespace Services.Controllers.API.Database.Contexts
             Id = new Guid("76d5e039-63b3-4c7f-bb8d-0847f729dcde").ToString(),
             Date = DateOnly.Parse(new DateTime(2025, 01, 09).ToString("yyyy-MM-dd")),
             TemperatureC = 5,
-            TemperatureF = (int)(5 / 0.5556),
+            TemperatureF = 32 + (int)(5 / 0.5556),
             Summary = "Cold",
+            Version = new Guid("76d5e039-63b3-4c7f-bb8d-0847f729dcde"),
             CreatedBy = "System",
             CreatedDate = new DateTime(2025, 01, 09)
           },
@@ -265,8 +280,9 @@ namespace Services.Controllers.API.Database.Contexts
             Id = new Guid("1130f076-1d75-4977-8a50-323a4ecf8f4e").ToString(),
             Date = DateOnly.Parse(new DateTime(2025, 01, 11).ToString("yyyy-MM-dd")),
             TemperatureC = 35,
-            TemperatureF = (int)(35 / 0.5556),
+            TemperatureF = 32 + (int)(35 / 0.5556),
             Summary = "Hot",
+            Version = new Guid("1130f076-1d75-4977-8a50-323a4ecf8f4e"),
             CreatedBy = "System",
             CreatedDate = new DateTime(2025, 01, 11)
           },
@@ -275,8 +291,9 @@ namespace Services.Controllers.API.Database.Contexts
             Id = new Guid("2fa8d533-c8fd-45e6-8ee4-988e5b1d8d04").ToString(),
             Date = DateOnly.Parse(new DateTime(2025, 01, 20).ToString("yyyy-MM-dd")),
             TemperatureC = 20,
-            TemperatureF = (int)(20 / 0.5556),
+            TemperatureF = 32 + (int)(20 / 0.5556),
             Summary = "Warm",
+            Version = new Guid("2fa8d533-c8fd-45e6-8ee4-988e5b1d8d04"),
             CreatedBy = "System",
             CreatedDate = new DateTime(2025, 01, 20)
           }
@@ -297,11 +314,13 @@ namespace Services.Controllers.API.Database.Contexts
         {
           case EntityState.Modified:
             entityWithTimestamps.ModifiedDate = DateTimeOffset.Now.DateTime;
+            entityWithTimestamps.Version = Guid.NewGuid();
             _logger!.LogInformation("Stamped for update: {Entity}", e.Entry.Entity);
             break;
 
           case EntityState.Added:
             entityWithTimestamps.CreatedDate = DateTimeOffset.Now.DateTime;
+            entityWithTimestamps.Version = Guid.NewGuid();
             _logger!.LogInformation("Stamped for insert: {Entity}", e.Entry.Entity);
             break;
         }

@@ -11,14 +11,18 @@ using Services.Controllers.API.Database.Contexts;
 namespace Services.Controllers.API.Database.Migrations
 {
     [DbContext(typeof(ServicesDbContext))]
-    [Migration("20250130094836_InitialSetup")]
+    [Migration("20250202183427_InitialSetup")]
     partial class InitialSetup
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.1");
+            modelBuilder
+                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("Proxies:ChangeTracking", false)
+                .HasAnnotation("Proxies:CheckEquality", false)
+                .HasAnnotation("Proxies:LazyLoading", true);
 
             modelBuilder.Entity("Services.Controllers.API.Database.Models.UserActivityLogDto", b =>
                 {
@@ -121,6 +125,12 @@ namespace Services.Controllers.API.Database.Migrations
                         .HasColumnName("Username")
                         .HasComment("The username of the user making the request.");
 
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("RowVersion")
+                        .HasComment("The version of the data entry.");
+
                     b.HasKey("Id")
                         .HasName("PK_UserActivity_UserActivityId");
 
@@ -177,6 +187,12 @@ namespace Services.Controllers.API.Database.Migrations
                         .HasColumnName("TemperatureF")
                         .HasComment("The temperature in Fahrenheit for the forecasted date, calculated from the temperature in Celsius.");
 
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("TEXT")
+                        .HasColumnName("RowVersion")
+                        .HasComment("The version of the data entry.");
+
                     b.HasKey("Id")
                         .HasName("PK_WeatherForecast_WeatherForecastId");
 
@@ -197,7 +213,8 @@ namespace Services.Controllers.API.Database.Migrations
                             Date = "2025-01-04",
                             Summary = "Hot",
                             TemperatureC = 25,
-                            TemperatureF = 76
+                            TemperatureF = 76,
+                            Version = new Guid("38b7942a-8a8f-4a34-9744-e4dea6eaed78")
                         },
                         new
                         {
@@ -207,7 +224,8 @@ namespace Services.Controllers.API.Database.Migrations
                             Date = "2025-01-07",
                             Summary = "Cool",
                             TemperatureC = 15,
-                            TemperatureF = 58
+                            TemperatureF = 58,
+                            Version = new Guid("3db3a34a-9dcf-42e6-977f-d6bbb2329f16")
                         },
                         new
                         {
@@ -217,7 +235,8 @@ namespace Services.Controllers.API.Database.Migrations
                             Date = "2025-01-09",
                             Summary = "Cold",
                             TemperatureC = 5,
-                            TemperatureF = 40
+                            TemperatureF = 40,
+                            Version = new Guid("76d5e039-63b3-4c7f-bb8d-0847f729dcde")
                         },
                         new
                         {
@@ -227,7 +246,8 @@ namespace Services.Controllers.API.Database.Migrations
                             Date = "2025-01-11",
                             Summary = "Hot",
                             TemperatureC = 35,
-                            TemperatureF = 94
+                            TemperatureF = 94,
+                            Version = new Guid("1130f076-1d75-4977-8a50-323a4ecf8f4e")
                         },
                         new
                         {
@@ -237,7 +257,8 @@ namespace Services.Controllers.API.Database.Migrations
                             Date = "2025-01-20",
                             Summary = "Warm",
                             TemperatureC = 20,
-                            TemperatureF = 67
+                            TemperatureF = 67,
+                            Version = new Guid("2fa8d533-c8fd-45e6-8ee4-988e5b1d8d04")
                         });
                 });
 #pragma warning restore 612, 618

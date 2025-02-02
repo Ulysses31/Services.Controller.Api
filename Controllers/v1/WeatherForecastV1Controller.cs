@@ -63,12 +63,12 @@ public class WeatherForecastController : ControllerBase
     [FromQuery] PaginationQuery paginationQuery
   )
   {
-    PagedResult<WeatherForecastDto> tempResp 
+    PagedResult<WeatherForecastDto> tempResp
       = await _services.FilterPaginationAsync(paginationQuery);
-    
-    PagedResultResponse<WeatherForecastResponse> resp 
-      = _mapper.Map<PagedResultResponse<WeatherForecastResponse>>(tempResp); 
-    
+
+    PagedResultResponse<WeatherForecastResponse> resp
+      = _mapper.Map<PagedResultResponse<WeatherForecastResponse>>(tempResp);
+
     return await Task.FromResult<IActionResult>(Ok(resp));
   }
 
@@ -186,6 +186,8 @@ public class WeatherForecastController : ControllerBase
     [FromBody] WeatherForecastDto newForecast
   )
   {
+    newForecast.TemperatureF = 32 + (int)(newForecast.TemperatureC / 0.5556);
+
     // Validation
     var validationResult = await _validator.ValidateAsync(newForecast);
     if (!validationResult.IsValid)
@@ -246,13 +248,17 @@ public class WeatherForecastController : ControllerBase
   {
     if (string.IsNullOrWhiteSpace(id))
     {
-      return await Task.FromResult<IActionResult>(BadRequest(new ProblemDetails
-      {
-        Title = "Bad Request",
-        Detail = "Id is required.",
-        Status = StatusCodes.Status400BadRequest
-      }));
+      return await Task.FromResult<IActionResult>(
+        BadRequest(new ProblemDetails
+        {
+          Title = "Bad Request",
+          Detail = "Id is required.",
+          Status = StatusCodes.Status400BadRequest
+        })
+      );
     }
+
+    newForecast.TemperatureF = 32 + (int)(newForecast.TemperatureC / 0.5556);
 
     // Validation
     var validationResult = await _validator.ValidateAsync(newForecast);
@@ -265,15 +271,32 @@ public class WeatherForecastController : ControllerBase
 
     if (newForecast == null)
     {
-      return await Task.FromResult<IActionResult>(BadRequest(new ProblemDetails
-      {
-        Title = "Bad Request",
-        Detail = "Weather forecast is required.",
-        Status = StatusCodes.Status400BadRequest
-      }));
+      return await Task.FromResult<IActionResult>(
+        BadRequest(new ProblemDetails
+        {
+          Title = "Bad Request",
+          Detail = "Weather forecast is required.",
+          Status = StatusCodes.Status400BadRequest
+        })
+      );
     }
 
-    await _services.UpdateAsync(x => x.Id == id, newForecast);
+    try
+    {
+      await _services.UpdateAsync(x => x.Id == id, newForecast);
+    }
+    catch (System.Exception ex)
+    {
+      return await Task.FromResult<IActionResult>(
+        BadRequest(new ProblemDetails
+        {
+          Title = "Bad Request",
+          Detail = ex.Message,
+          Status = StatusCodes.Status400BadRequest
+        })
+      );
+    }
+
 
     return await Task.FromResult<IActionResult>(NoContent());
   }

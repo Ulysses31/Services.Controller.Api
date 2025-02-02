@@ -33,6 +33,7 @@ namespace Services.Controllers.API.Database.Migrations
                     ResponseHeaders = table.Column<string>(type: "text", nullable: true, comment: "The headers included in the response."),
                     ResponseStatusCode = table.Column<string>(type: "text", maxLength: 10, nullable: true, comment: "The HTTP status code of the response."),
                     ResponseBody = table.Column<string>(type: "text", nullable: true, comment: "The body content of the response."),
+                    RowVersion = table.Column<Guid>(type: "TEXT", nullable: false, comment: "The version of the data entry."),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false, comment: "Who created the record."),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: false, comment: "Date and time the record was created."),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true, comment: "Date and time the record was last updated.")
@@ -52,6 +53,7 @@ namespace Services.Controllers.API.Database.Migrations
                     TemperatureC = table.Column<int>(type: "integer", nullable: false, comment: "The temperature in Celsius for the forecasted date."),
                     TemperatureF = table.Column<int>(type: "integer", nullable: false, comment: "The temperature in Fahrenheit for the forecasted date, calculated from the temperature in Celsius."),
                     Summary = table.Column<string>(type: "text", nullable: false, comment: "A summary description of the weather (e.g., sunny, rainy)."),
+                    RowVersion = table.Column<Guid>(type: "TEXT", nullable: false, comment: "The version of the data entry."),
                     CreatedBy = table.Column<string>(type: "TEXT", maxLength: 100, nullable: false, comment: "Who created the record."),
                     CreatedDate = table.Column<DateTime>(type: "datetime", nullable: false, comment: "Date and time the record was created."),
                     ModifiedDate = table.Column<DateTime>(type: "datetime", nullable: true, comment: "Date and time the record was last updated.")
@@ -64,14 +66,14 @@ namespace Services.Controllers.API.Database.Migrations
 
             migrationBuilder.InsertData(
                 table: "WeatherForecast",
-                columns: new[] { "Id", "CreatedBy", "CreatedDate", "Date", "ModifiedDate", "Summary", "TemperatureC", "TemperatureF" },
+                columns: new[] { "Id", "CreatedBy", "CreatedDate", "Date", "ModifiedDate", "Summary", "TemperatureC", "TemperatureF", "RowVersion" },
                 values: new object[,]
                 {
-                    { "1130f076-1d75-4977-8a50-323a4ecf8f4e", "System", new DateTime(2025, 1, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), "2025-01-11", null, "Hot", 35, 94 },
-                    { "2fa8d533-c8fd-45e6-8ee4-988e5b1d8d04", "System", new DateTime(2025, 1, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "2025-01-20", null, "Warm", 20, 67 },
-                    { "38b7942a-8a8f-4a34-9744-e4dea6eaed78", "System", new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), "2025-01-04", null, "Hot", 25, 76 },
-                    { "3db3a34a-9dcf-42e6-977f-d6bbb2329f16", "System", new DateTime(2025, 1, 7, 0, 0, 0, 0, DateTimeKind.Unspecified), "2025-01-07", null, "Cool", 15, 58 },
-                    { "76d5e039-63b3-4c7f-bb8d-0847f729dcde", "System", new DateTime(2025, 1, 9, 0, 0, 0, 0, DateTimeKind.Unspecified), "2025-01-09", null, "Cold", 5, 40 }
+                    { "1130f076-1d75-4977-8a50-323a4ecf8f4e", "System", new DateTime(2025, 1, 11, 0, 0, 0, 0, DateTimeKind.Unspecified), "2025-01-11", null, "Hot", 35, 94, new Guid("1130f076-1d75-4977-8a50-323a4ecf8f4e") },
+                    { "2fa8d533-c8fd-45e6-8ee4-988e5b1d8d04", "System", new DateTime(2025, 1, 20, 0, 0, 0, 0, DateTimeKind.Unspecified), "2025-01-20", null, "Warm", 20, 67, new Guid("2fa8d533-c8fd-45e6-8ee4-988e5b1d8d04") },
+                    { "38b7942a-8a8f-4a34-9744-e4dea6eaed78", "System", new DateTime(2025, 1, 4, 0, 0, 0, 0, DateTimeKind.Unspecified), "2025-01-04", null, "Hot", 25, 76, new Guid("38b7942a-8a8f-4a34-9744-e4dea6eaed78") },
+                    { "3db3a34a-9dcf-42e6-977f-d6bbb2329f16", "System", new DateTime(2025, 1, 7, 0, 0, 0, 0, DateTimeKind.Unspecified), "2025-01-07", null, "Cool", 15, 58, new Guid("3db3a34a-9dcf-42e6-977f-d6bbb2329f16") },
+                    { "76d5e039-63b3-4c7f-bb8d-0847f729dcde", "System", new DateTime(2025, 1, 9, 0, 0, 0, 0, DateTimeKind.Unspecified), "2025-01-09", null, "Cold", 5, 40, new Guid("76d5e039-63b3-4c7f-bb8d-0847f729dcde") }
                 });
 
             migrationBuilder.CreateIndex(

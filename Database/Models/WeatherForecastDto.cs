@@ -7,8 +7,6 @@ namespace Services.Controllers.API.Database.Models
   /// </summary>
   public class WeatherForecastDto: BaseEntity
   {
-    private int _tempF;
-
     /// <summary>
     /// Gets or sets the unique identifier for the weather forecast.
     /// The ID is automatically generated when a new instance is created.
@@ -29,10 +27,7 @@ namespace Services.Controllers.API.Database.Models
     /// Gets the temperature in Fahrenheit for the forecasted date, 
     /// calculated from the temperature in Celsius.
     /// </summary>
-    public int TemperatureF { 
-      get => _tempF; 
-      set => _tempF = 32 + (int)(TemperatureC / 0.5556);
-    }
+    public int TemperatureF { get; set; }
 
     /// <summary>
     /// Gets or sets a summary description of the weather (e.g., sunny, rainy).

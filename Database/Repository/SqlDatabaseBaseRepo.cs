@@ -17,7 +17,7 @@ public abstract class SqlDatabaseBaseRepo<TEntity> where TEntity : class
   {
   }
 
-  #region Sync Methods
+  #region Sync-Methods
 
   /// <summary>
   /// Retrieves all entities as a queryable collection.
@@ -59,9 +59,9 @@ public abstract class SqlDatabaseBaseRepo<TEntity> where TEntity : class
   /// </summary>
   public abstract TEntity Update(Func<TEntity, bool> predicate, TEntity entity);
 
-  #endregion Sync Methods
+  #endregion Sync-Methods
 
-  #region Async Methods
+  #region Async-Methods
 
   /// <summary>
   /// Asynchronously retrieves entities that match the given pagination query.
@@ -110,7 +110,7 @@ public abstract class SqlDatabaseBaseRepo<TEntity> where TEntity : class
   /// </summary>
   public abstract Task<TEntity> DeleteAsync(TEntity entity);
 
-  #endregion Async Methods
+  #endregion Async-Methods
 
   /// <summary>
   /// Saves changes to the database.

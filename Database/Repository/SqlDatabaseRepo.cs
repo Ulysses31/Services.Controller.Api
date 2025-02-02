@@ -1,3 +1,5 @@
+using System.Text.Json;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Services.Controllers.API.Configuration;
 using Services.Controllers.API.Database.Models;
@@ -23,7 +25,7 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
     _context = context ?? throw new ArgumentNullException(nameof(context));
   }
 
-  #region Sync Methods
+  #region Sync-Methods
 
   /// <inheritdoc/>
   public override IQueryable<TEntity> Filter()
@@ -89,12 +91,14 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
     return entityToUpdate;
   }
 
-  #endregion Sync Methods
+  #endregion Sync-Methods
 
-  #region Async Methods
 
+  #region Async-Methods
   /// <inheritdoc/>
-  public override async Task<PagedResult<TEntity>> FilterPaginationAsync(PaginationQuery paginationQuery)
+  public override async Task<PagedResult<TEntity>> FilterPaginationAsync(
+    PaginationQuery paginationQuery
+  )
   {
     var query = _context.Set<TEntity>().OrderBy(x => x).AsQueryable();
     return await query.ToPagedResultAsync(paginationQuery);
@@ -107,9 +111,13 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   }
 
   /// <inheritdoc/>
-  public override async Task<IEnumerable<TEntity>> FilterAsync(Func<TEntity, bool> predicate)
+  public override async Task<IEnumerable<TEntity>> FilterAsync(
+    Func<TEntity, bool> predicate
+  )
   {
-    return await Task.FromResult(_context.Set<TEntity>().Where(predicate));
+    return await Task.FromResult(
+      _context.Set<TEntity>().Where(predicate)
+    );
   }
 
   /// <inheritdoc/>
@@ -164,21 +172,100 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
     return entity;
   }
 
-  #endregion Async Methods
+  #endregion Async-Methods
 
   /// <inheritdoc/>
   public override int SaveChanges(DbContext context)
   {
-    return context.SaveChanges();
+    int result = 0;
+
+    try
+    {
+      result = context.SaveChanges();
+    }
+    catch (DbUpdateConcurrencyException ex)
+    {
+      _ = HandleConcurrencyException(ex, false);
+    }
+
+    return result;
   }
 
   /// <inheritdoc/>
   public override async Task<int> SaveChangesAsync(DbContext context)
   {
-    return await context.SaveChangesAsync();
+    int result = 0;
+
+    try
+    {
+      result = await context.SaveChangesAsync();
+    }
+    catch (DbUpdateConcurrencyException ex)
+    {
+      await HandleConcurrencyException(ex, true);
+    }
+
+    return result;
   }
 
+  /// <summary>
+  /// Handles concurrency exceptions that occur when updating database records.
+  /// </summary>
+  /// <param name="ex">The <see cref="DbUpdateConcurrencyException"/> that was thrown.</param>
+  /// <param name="isAsync">Indicates whether the operation is asynchronous.</param>
+  /// <exception cref="Exception">
+  /// Thrown if the record has been deleted by another process or if a concurrency conflict occurs.
+  /// </exception>
+  /// <exception cref="NotSupportedException">
+  /// Thrown if the entity type is not supported for concurrency handling.
+  /// </exception>
+  /// <remarks>
+  /// This method attempts to retrieve the latest database values for the entity involved in the concurrency conflict.
+  /// If the entity no longer exists, an exception is thrown. Otherwise, the method updates the original values
+  /// of the entity with the database values and raises a concurrency conflict exception with the serialized
+  /// database object.
+  /// </remarks>
+  private static async Task HandleConcurrencyException(
+      DbUpdateConcurrencyException ex,
+      bool isAsync
+  )
+  {
+    foreach (var entry in ex.Entries)
+    {
+      if (entry.Entity is TEntity)
+      {
+        var dbValues = (isAsync == false)
+          ? entry.GetDatabaseValues()
+          : await entry.GetDatabaseValuesAsync();
 
+        if (dbValues == null)
+          throw new Exception("The record has been deleted by another job process.");
 
+        var dbObject = (TEntity)dbValues.ToObject();
+        var jsonObject = JsonSerializer.Serialize(dbObject);
+
+        entry.OriginalValues.SetValues(dbValues);
+
+        throw new Exception(
+          "Concurrency conflict: The record has been modified by another user. Please try again...",
+          ex
+        );
+      }
+      else
+      {
+        throw new NotSupportedException(
+          "Concurrency error. Don't know how " +
+          "to handle concurrency conflicts for " + entry.Metadata.Name +
+          "Please try again...",
+          ex
+        );
+      }
+    }
+
+    throw new NotSupportedException(
+      "Concurrency error. Please try again...",
+      ex
+    );
+  }
 
 }
