@@ -31,14 +31,14 @@ namespace Services.Controllers.API.Database.Migrations
 
                     b.Property<string>("Address")
                         .HasMaxLength(100)
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("Address")
                         .HasComment("The IP address of the client making the request.");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT")
+                        .HasColumnType("varchar")
                         .HasComment("Who created the record.");
 
                     b.Property<DateTime>("CreatedDate")
@@ -47,13 +47,13 @@ namespace Services.Controllers.API.Database.Migrations
 
                     b.Property<string>("DomainName")
                         .HasMaxLength(100)
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("DomainName")
                         .HasComment("The domain name associated with the request.");
 
                     b.Property<string>("Host")
                         .HasMaxLength(100)
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("Host")
                         .HasComment("The hostname of the client.");
 
@@ -63,29 +63,29 @@ namespace Services.Controllers.API.Database.Migrations
 
                     b.Property<string>("OsVersion")
                         .HasMaxLength(100)
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("OsVersion")
                         .HasComment("The operating system version of the client making the request.");
 
                     b.Property<string>("RequestBody")
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("RequestBody")
                         .HasComment("The body content of the request.");
 
                     b.Property<string>("RequestHeaders")
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("RequestHeaders")
                         .HasComment("The headers included in the request.");
 
                     b.Property<string>("RequestMethod")
                         .HasMaxLength(10)
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("RequestMethod")
                         .HasComment("The HTTP method used in the request (e.g., GET, POST).");
 
                     b.Property<string>("RequestPath")
                         .HasMaxLength(100)
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("RequestPath")
                         .HasComment("The path of the requested resource.");
 
@@ -95,36 +95,36 @@ namespace Services.Controllers.API.Database.Migrations
                         .HasComment("The timestamp of when the request was made.");
 
                     b.Property<string>("ResponseBody")
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("ResponseBody")
                         .HasComment("The body content of the response.");
 
                     b.Property<string>("ResponseHeaders")
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("ResponseHeaders")
                         .HasComment("The headers included in the response.");
 
                     b.Property<string>("ResponseStatusCode")
                         .HasMaxLength(10)
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("ResponseStatusCode")
                         .HasComment("The HTTP status code of the response.");
 
                     b.Property<string>("SourceName")
                         .HasMaxLength(100)
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("SourceName")
                         .HasComment("The source name of the request.");
 
                     b.Property<string>("Username")
                         .HasMaxLength(100)
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("Username")
                         .HasComment("The username of the user making the request.");
 
                     b.Property<Guid>("Version")
                         .IsConcurrencyToken()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("varchar")
                         .HasColumnName("RowVersion")
                         .HasComment("The version of the data entry.");
 
@@ -144,14 +144,14 @@ namespace Services.Controllers.API.Database.Migrations
                 {
                     b.Property<string>("Id")
                         .HasMaxLength(36)
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("Id")
                         .HasComment("The unique identifier for the weather forecast.");
 
                     b.Property<string>("CreatedBy")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("TEXT")
+                        .HasColumnType("varchar")
                         .HasComment("Who created the record.");
 
                     b.Property<DateTime>("CreatedDate")
@@ -170,7 +170,7 @@ namespace Services.Controllers.API.Database.Migrations
 
                     b.Property<string>("Summary")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("varchar")
                         .HasColumnName("Summary")
                         .HasComment("A summary description of the weather (e.g., sunny, rainy).");
 
@@ -186,7 +186,7 @@ namespace Services.Controllers.API.Database.Migrations
 
                     b.Property<Guid>("Version")
                         .IsConcurrencyToken()
-                        .HasColumnType("TEXT")
+                        .HasColumnType("varchar")
                         .HasColumnName("RowVersion")
                         .HasComment("The version of the data entry.");
 

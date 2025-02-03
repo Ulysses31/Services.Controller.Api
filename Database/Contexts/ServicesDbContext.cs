@@ -76,49 +76,81 @@ namespace Services.Controllers.API.Database.Contexts
         entity.Property(key => key.SourceName)
               .HasComment("The source name of the request.")
               .HasColumnName("SourceName")
+#if MYSQL 
               .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif
               .HasMaxLength(100);
 
         entity.Property(key => key.OsVersion)
               .HasComment("The operating system version of the client making the request.")
               .HasColumnName("OsVersion")
+#if MYSQL 
               .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif
               .HasMaxLength(100);
 
         entity.Property(key => key.Host)
               .HasComment("The hostname of the client.")
               .HasColumnName("Host")
-              .HasColumnType("text")
+#if MYSQL 
+                  .HasColumnType("text")
+#else
+                  .HasColumnType("varchar")
+#endif
               .HasMaxLength(100);
 
         entity.Property(key => key.Username)
               .HasComment("The username of the user making the request.")
               .HasColumnName("Username")
+#if MYSQL 
               .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif
               .HasMaxLength(100);
 
         entity.Property(key => key.DomainName)
               .HasComment("The domain name associated with the request.")
               .HasColumnName("DomainName")
+#if MYSQL 
               .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif
               .HasMaxLength(100);
 
         entity.Property(key => key.Address)
               .HasComment("The IP address of the client making the request.")
               .HasColumnName("Address")
+#if MYSQL 
               .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif
               .HasMaxLength(100);
 
         entity.Property(key => key.RequestMethod)
               .HasComment("The HTTP method used in the request (e.g., GET, POST).")
               .HasColumnName("RequestMethod")
+#if MYSQL 
               .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif
               .HasMaxLength(10);
 
         entity.Property(key => key.RequestPath)
               .HasComment("The path of the requested resource.")
               .HasColumnName("RequestPath")
+#if MYSQL 
               .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif
               .HasMaxLength(100);
 
         entity.Property(key => key.RequestTime)
@@ -129,38 +161,67 @@ namespace Services.Controllers.API.Database.Contexts
         entity.Property(key => key.RequestBody)
               .HasComment("The body content of the request.")
               .HasColumnName("RequestBody")
+#if MYSQL 
               .HasColumnType("text");
+#else
+              .HasColumnType("varchar");
+#endif
 
         entity.Property(key => key.RequestHeaders)
               .HasComment("The headers included in the request.")
               .HasColumnName("RequestHeaders")
+#if MYSQL 
               .HasColumnType("text");
+#else
+              .HasColumnType("varchar");
+#endif
 
         entity.Property(key => key.ResponseHeaders)
               .HasComment("The headers included in the response.")
               .HasColumnName("ResponseHeaders")
+#if MYSQL 
               .HasColumnType("text");
+#else
+              .HasColumnType("varchar");
+#endif
 
         entity.Property(key => key.ResponseStatusCode)
               .HasComment("The HTTP status code of the response.")
               .HasColumnName("ResponseStatusCode")
+#if MYSQL 
               .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif
               .HasMaxLength(10);
 
         entity.Property(key => key.ResponseBody)
               .HasComment("The body content of the response.")
               .HasColumnName("ResponseBody")
+#if MYSQL 
               .HasColumnType("text");
+#else
+              .HasColumnType("varchar");
+#endif
 
         entity.Property(key => key.Version)
               .HasComment("The version of the data entry.")
               .HasColumnName("RowVersion")
-              // .HasColumnType("varchar")
+#if MYSQL 
+              .HasColumnType("text")
+#else              
+              .HasColumnType("varchar")
+#endif
               .IsConcurrencyToken();
 
         entity.Property(key => key.CreatedBy)
               .HasMaxLength(100)
               .HasComment("Who created the record.")
+#if MYSQL 
+              .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif              
               .IsRequired(true);
 
         entity.Property(key => key.CreatedDate)
@@ -187,7 +248,11 @@ namespace Services.Controllers.API.Database.Contexts
         entity.Property(key => key.Id)
               .HasComment("The unique identifier for the weather forecast.")
               .HasColumnName("Id")
+#if MYSQL 
               .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif
               .HasMaxLength(36)
               .IsRequired();
         //.ValueGeneratedOnAdd();
@@ -217,18 +282,31 @@ namespace Services.Controllers.API.Database.Contexts
         entity.Property(key => key.Summary)
               .HasComment("A summary description of the weather (e.g., sunny, rainy).")
               .HasColumnName("Summary")
+#if MYSQL 
               .HasColumnType("text")
+#else
+              .HasColumnType("varchar")
+#endif
               .IsRequired();
 
         entity.Property(key => key.Version)
               .HasComment("The version of the data entry.")
               .HasColumnName("RowVersion")
-              //.HasColumnType("varchar")
+#if MYSQL 
+              .HasColumnType("text")  
+#else
+              .HasColumnType("varchar")
+#endif
               .IsConcurrencyToken();
 
         entity.Property(key => key.CreatedBy)
               .HasMaxLength(100)
               .HasComment("Who created the record.")
+#if MYSQL 
+              .HasColumnType("text")  
+#else
+              .HasColumnType("varchar")
+#endif
               .IsRequired(true);
 
         entity.Property(key => key.CreatedDate)
