@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Services.Controllers.API.Database.Models;
 
 namespace Services.Controllers.API.Database.Contexts
@@ -36,6 +37,7 @@ namespace Services.Controllers.API.Database.Contexts
     {
       ChangeTracker.StateChanged += UpdateTimestamps;
       ChangeTracker.Tracked += UpdateTimestamps;
+      ChangeTracker.DetectingEntityChanges += LogEntityChanges;
       _logger = logger;
     }
 
@@ -393,14 +395,53 @@ namespace Services.Controllers.API.Database.Contexts
           case EntityState.Modified:
             entityWithTimestamps.ModifiedDate = DateTimeOffset.Now.DateTime;
             entityWithTimestamps.Version = Guid.NewGuid();
-            _logger!.LogInformation("Stamped for update: {Entity}", e.Entry.Entity);
             break;
-
           case EntityState.Added:
             entityWithTimestamps.CreatedDate = DateTimeOffset.Now.DateTime;
             entityWithTimestamps.Version = Guid.NewGuid();
             _logger!.LogInformation("Stamped for insert: {Entity}", e.Entry.Entity);
             break;
+        }
+      }
+    }
+
+
+    private void LogEntityChanges(
+      object? sender,
+      DetectEntityChangesEventArgs e
+    )
+    {
+      if ((e.Entry.Entity is BaseEntity) && (e.Entry.Entity is not UserActivityLogDto))
+      {
+        _logger!.LogInformation("========== Entity Tracking =====================================>");
+        _logger!.LogInformation("Entity: {Entity}", e.Entry.Entity);
+        _logger!.LogInformation("State: {State}", e.Entry.State);
+        _logger!.LogInformation("========== Entity Tracking =====================================>");
+
+        // Get modified properties
+        var modifiedProperties = ChangeTracker.Entries()
+            .Where(p => p.State == EntityState.Modified)
+            .ToList();
+
+        // Log modified fields
+        foreach (var entry in modifiedProperties)
+        {
+          var dbVals = entry.GetDatabaseValues();
+
+          _logger!.LogInformation("========== Modified Entity Properties Tracking =================>");
+          foreach (var prop in entry.Properties.Where(p => p.IsModified && !Equals(dbVals![p.Metadata.Name], p.CurrentValue)))
+          {
+            var tp = prop.Metadata.ClrType;
+
+            _logger!.LogInformation(
+              "Property => Type: [{Type}] => Name: [{Property}] => DatabaseValue: [{db}] => NewValue: [{Value}]",
+              tp.Name,
+              prop.Metadata.Name,
+              dbVals![prop.Metadata.Name],
+              prop.CurrentValue
+            );
+          }
+          _logger!.LogInformation("========== Modified Entity Properties Tracking =================>");
         }
       }
     }

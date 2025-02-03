@@ -154,12 +154,12 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   /// <inheritdoc/>
   public override async Task<TEntity> UpdateAsync(Func<TEntity, bool> predicate, TEntity entity)
   {
-    var entityToUpdate = (await FilterAsNoTrackingAsync(predicate)).FirstOrDefault() ?? throw new Exception("Entity not found.");
-    entityToUpdate = entity ?? throw new ArgumentNullException(NullEntity, nameof(NullEntity));
+    // var entityToUpdate = (await FilterAsNoTrackingAsync(predicate)).FirstOrDefault() ?? throw new Exception("Entity not found.");
+    // entityToUpdate = entity ?? throw new ArgumentNullException(NullEntity, nameof(NullEntity));
 
     _context.Entry(entity).State = EntityState.Modified;
     await SaveChangesAsync(_context);
-    return entityToUpdate;
+    return entity;
   }
 
   /// <inheritdoc/>
