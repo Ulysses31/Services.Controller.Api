@@ -60,7 +60,7 @@ namespace Services.Controllers.API
       }
 
       // Do work that can write to the Response.
-      _logger.Information($"===> Request started at: {DateTime.Now}");
+      _logger.Information($"===> ⏰ Request started at: {DateTime.Now}");
 
       //****** Request body ********
       context.Request.EnableBuffering();
@@ -150,7 +150,7 @@ namespace Services.Controllers.API
         }
       }
 
-      _logger.Information($"===> Request finished at: {DateTime.Now}");
+      _logger.Information($"===> ⏰ Request finished at: {DateTime.Now}");
     }
 
 
@@ -185,7 +185,7 @@ namespace Services.Controllers.API
       var generatedCodeController = generatorController.GenerateFile();
       var pathController = $"./ApiGen/{version}/{settingsController.CSharpGeneratorSettings.Namespace}/{className}_controller.cs";
 
-      _logger.LogInformation($"===> Generated controller file path: {pathController}");
+      _logger.LogInformation($"===> 💻 Generated controller file path: {pathController}");
 
       var fileController = new FileInfo(pathController);
       fileController.Directory?.Create();
@@ -207,7 +207,7 @@ namespace Services.Controllers.API
       var generatedCodeClient = generatorClient.GenerateFile();
       var pathClient = $"./ApiGen/{version}/{settingsClient.CSharpGeneratorSettings.Namespace}/{settingsClient.ClassName}_client.cs";
 
-      _logger.LogInformation($"===> Generated csharp-client file path: {pathClient}");
+      _logger.LogInformation($"===> 💻 Generated csharp-client file path: {pathClient}");
 
       var fileClient = new FileInfo(pathClient);
       fileClient.Directory?.Create();
@@ -228,7 +228,7 @@ namespace Services.Controllers.API
       var generatedCodeTypescript = generatorTypescript.GenerateFile();
       var pathTypescript = $"./ApiGen/{version}/{settingsTypescript.TypeScriptGeneratorSettings.Namespace}/{settingsTypescript.ClassName}.ts";
 
-      _logger.LogInformation($"===> Generated typescript-client file path: {pathTypescript}");
+      _logger.LogInformation($"===> 💻 Generated typescript-client file path: {pathTypescript}");
 
       var fileTypescript = new FileInfo(pathTypescript);
       fileTypescript.Directory?.Create();

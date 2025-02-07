@@ -169,15 +169,16 @@ public class Program
        .EnableDetailedErrors(envName.Equals("Development", StringComparison.Ordinal))
        .EnableSensitiveDataLogging(envName.Equals("Development", StringComparison.Ordinal))
        .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll)
-       .UseLazyLoadingProxies(o => {});
-       // .UseAsyncSeeding(
-       //    async (context, _, token) =>
-       //    {
-       //      await context.Database.EnsureCreatedAsync(token);
-       //    }
-       // );
+       .UseLazyLoadingProxies(o => { });
+      // .UseAsyncSeeding(
+      //    async (context, _, token) =>
+      //    {
+      //      await context.Database.EnsureCreatedAsync(token);
+      //    }
+      // );
+      DiagnosticListener.AllListeners.Subscribe(new DiagnosticObserver());
     });
-    
+
     // database repo services
     services.AddScoped<ServicesApiDbRepo>();
     services.AddScoped<UserActivityDbRepo>();
@@ -233,8 +234,8 @@ public class Program
       app.UseRateLimiter();
     }
 
-    _logger.Information("===> Environment: {envName}", envName);
-    _logger.Information("===> Host: {HostIpAddress}", requesterInfo.hostInfo.Addr);
+    _logger.Information("===> 💻 Environment: {envName}", envName);
+    _logger.Information("===> 💻 Host: {HostIpAddress}", requesterInfo.hostInfo.Addr);
 
     app.Run();
 

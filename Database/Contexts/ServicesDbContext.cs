@@ -392,14 +392,18 @@ namespace Services.Controllers.API.Database.Contexts
       {
         switch (e.Entry.State)
         {
+          case EntityState.Deleted:
+            _logger!.LogInformation("===> 🗑️ Stamped for delete: {Entity}", e.Entry.Entity);
+            break;
           case EntityState.Modified:
             entityWithTimestamps.ModifiedDate = DateTimeOffset.Now.DateTime;
             entityWithTimestamps.Version = Guid.NewGuid();
+            _logger!.LogInformation("===> 📅 Stamped for update: {Entity}", e.Entry.Entity);
             break;
           case EntityState.Added:
             entityWithTimestamps.CreatedDate = DateTimeOffset.Now.DateTime;
             entityWithTimestamps.Version = Guid.NewGuid();
-            _logger!.LogInformation("Stamped for insert: {Entity}", e.Entry.Entity);
+            _logger!.LogInformation("===> 📅 Stamped for insert: {Entity}", e.Entry.Entity);
             break;
         }
       }
