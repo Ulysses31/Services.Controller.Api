@@ -1,4 +1,6 @@
+using System.Text.Json;
 using AutoMapper;
+using BenchmarkDotNet.Running;
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
@@ -46,6 +48,28 @@ public class WeatherForecastController : ControllerBase
   }
 
   /// <summary>
+  /// Benchmark.
+  /// </summary>
+  /// <remarks>This is a benchmark process.</remarks>> 
+  /// <returns>Benchmark results.</returns>
+  /// <response code="200">Returns weather forecast paginated list</response>
+  /// <response code="500">For a bad request</response>
+  [HttpGet("benchmark")]
+  // [Tags(["weather-forecast"])]
+  [MapToApiVersion("1.0")]
+  [EndpointName("Benchmark")]
+  [ProducesResponseType(StatusCodes.Status200OK)]
+  [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+  public async Task<IActionResult> Benchmark()
+  {
+    var summary = BenchmarkRunner.Run<MemoryBenchmarkerDemo>();
+
+    return await Task.FromResult<IActionResult>(
+      Ok(JsonSerializer.Serialize<string>(summary.Table.ToString()!))
+    );
+  }
+
+  /// <summary>
   /// Retrieves all weather forecasts paginated.
   /// </summary>
   /// <remarks>This is a paginated WeatherForecast list summary.</remarks>> 
@@ -68,7 +92,6 @@ public class WeatherForecastController : ControllerBase
 
     PagedResultResponse<WeatherForecastResponse> resp
       = _mapper.Map<PagedResultResponse<WeatherForecastResponse>>(tempResp);
-
     return await Task.FromResult<IActionResult>(Ok(resp));
   }
 

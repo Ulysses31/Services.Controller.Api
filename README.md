@@ -88,7 +88,14 @@ When writing provider-specific logic, you can use preprocessor directives like t
     optionsBuilder.UseSqlServer("Server=my_server;");
 #endif
 ```
-
+## Benchmarking
+Open CLI and type
+```cmd
+dotnet run -c release 
+```
+```cmd
+curl -X 'GET' 'http://localhost:5096/api/v1/WeatherForecast/benchmark' -H 'accept: application/json' 
+```
 ## K6 Test
   Open CLI and type...
 ```bash
