@@ -22,42 +22,42 @@ public class ServicesApiDbRepo : SqlDatabaseRepo<WeatherForecastDto>
 
   protected override async Task BeforeSaveChangesAsync(DbContext context)
   {
-    // foreach (var entry in context.ChangeTracker.Entries())
-    // {
-    //   if (entry.State == EntityState.Added)
-    //   {
-    //     // Perform actions on newly added entities
-    //   }
-    //   else if (entry.State == EntityState.Modified)
-    //   {
-    //     // Perform actions before update
-    //   }
-    //   else if (entry.State == EntityState.Deleted)
-    //   {
-    //     // Perform actions before deletion
-    //   }
-    // }
+    foreach (var entry in context.ChangeTracker.Entries())
+    {
+      if (entry.State == EntityState.Added)
+      {
+        // Perform actions on newly added entities
+      }
+      else if (entry.State == EntityState.Modified)
+      {
+        // Perform actions before update
+      }
+      else if (entry.State == EntityState.Deleted)
+      {
+        // Perform actions before deletion
+      }
+    }
 
     await base.BeforeSaveChangesAsync(context);
   }
 
   protected override async Task AfterSaveChangesAsync(DbContext context)
   {
-    // foreach (var entry in context.ChangeTracker.Entries())
-    // {
-    //   if (entry.State == EntityState.Added)
-    //   {
-    //     // Perform actions after entity is added
-    //   }
-    //   else if (entry.State == EntityState.Modified)
-    //   {
-    //     // Perform actions after entity is modified
-    //   }
-    //   else if (entry.State == EntityState.Deleted)
-    //   {
-    //     // Perform actions after entity is deleted
-    //   }
-    // }
+    foreach (var entry in context.ChangeTracker.Entries())
+    {
+      if (entry.State == EntityState.Added)
+      {
+        // Perform actions after entity is added
+      }
+      else if (entry.State == EntityState.Modified)
+      {
+        // Perform actions after entity is modified
+      }
+      else if (entry.State == EntityState.Deleted)
+      {
+        // Perform actions after entity is deleted
+      }
+    }
 
     await base.AfterSaveChangesAsync(context);
   }

@@ -112,6 +112,7 @@ public abstract class SqlDatabaseBaseRepo<TEntity> where TEntity : class
 
   #endregion Async-Methods
 
+  #region Save-Methods 
 
   /// <summary>
   /// Before Saves changes to the database.
@@ -143,4 +144,5 @@ public abstract class SqlDatabaseBaseRepo<TEntity> where TEntity : class
   /// </summary>
   protected abstract Task AfterSaveChangesAsync(DbContext context);
 
+  #endregion Save-Methods
 }
