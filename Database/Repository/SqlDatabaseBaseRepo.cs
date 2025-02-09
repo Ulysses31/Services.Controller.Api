@@ -112,13 +112,35 @@ public abstract class SqlDatabaseBaseRepo<TEntity> where TEntity : class
 
   #endregion Async-Methods
 
+
+  /// <summary>
+  /// Before Saves changes to the database.
+  /// </summary>
+  protected abstract Task BeforeSaveChanges(DbContext context);
+
   /// <summary>
   /// Saves changes to the database.
   /// </summary>
   public abstract int SaveChanges(DbContext context);
 
   /// <summary>
+  /// After Saves changes to the database.
+  /// </summary>
+  protected abstract Task AfterSaveChanges(DbContext context);
+
+  /// <summary>
+  /// Before Asynchronously Saves changes to the database.
+  /// </summary>
+  protected abstract Task BeforeSaveChangesAsync(DbContext context);
+
+  /// <summary>
   /// Asynchronously saves changes to the database.
   /// </summary>
   public abstract Task<int> SaveChangesAsync(DbContext context);
+
+  /// <summary>
+  /// After Asynchronously Saves changes to the database.
+  /// </summary>
+  protected abstract Task AfterSaveChangesAsync(DbContext context);
+
 }

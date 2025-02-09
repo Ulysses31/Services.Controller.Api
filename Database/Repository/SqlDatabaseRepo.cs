@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Services.Controllers.API.Configuration;
 using Services.Controllers.API.Database.Models;
 
@@ -95,6 +96,7 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
 
 
   #region Async-Methods
+
   /// <inheritdoc/>
   public override async Task<PagedResult<TEntity>> FilterPaginationAsync(
     PaginationQuery paginationQuery
@@ -175,13 +177,38 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   #endregion Async-Methods
 
   /// <inheritdoc/>
+  protected override Task BeforeSaveChanges(DbContext context)
+  {
+    return Task.Run(() =>
+    {
+      foreach (var entry in context.ChangeTracker.Entries())
+      {
+        if (entry.State == EntityState.Added)
+        {
+          // Perform actions on newly added entities
+        }
+        else if (entry.State == EntityState.Modified)
+        {
+          // Perform actions before update
+        }
+        else if (entry.State == EntityState.Deleted)
+        {
+          // Perform actions before deletion
+        }
+      }
+    });
+  }
+
+  /// <inheritdoc/>
   public override int SaveChanges(DbContext context)
   {
     int result = 0;
 
     try
     {
+      BeforeSaveChanges(context);
       result = context.SaveChanges();
+      AfterSaveChanges(context);
     }
     catch (DbUpdateConcurrencyException ex)
     {
@@ -192,13 +219,61 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   }
 
   /// <inheritdoc/>
+  protected override Task AfterSaveChanges(DbContext context)
+  {
+    return Task.Run(() =>
+    {
+      foreach (var entry in context.ChangeTracker.Entries())
+      {
+        if (entry.State == EntityState.Added)
+        {
+          // Perform actions after entity is added
+        }
+        else if (entry.State == EntityState.Modified)
+        {
+          // Perform actions after entity is modified
+        }
+        else if (entry.State == EntityState.Deleted)
+        {
+          // Perform actions after entity is deleted
+        }
+      }
+    });
+  }
+
+  /// <inheritdoc/>
+  protected override async Task BeforeSaveChangesAsync(DbContext context)
+  {
+    await Task.Run(() =>
+    {
+      foreach (var entry in context.ChangeTracker.Entries())
+      {
+        if (entry.State == EntityState.Added)
+        {
+          // Perform actions on newly added entities
+        }
+        else if (entry.State == EntityState.Modified)
+        {
+          // Perform actions before update
+        }
+        else if (entry.State == EntityState.Deleted)
+        {
+          // Perform actions before deletion
+        }
+      }
+    });
+  }
+
+  /// <inheritdoc/>
   public override async Task<int> SaveChangesAsync(DbContext context)
   {
     int result = 0;
 
     try
     {
+      await BeforeSaveChangesAsync(context);
       result = await context.SaveChangesAsync();
+      await AfterSaveChangesAsync(context);
     }
     catch (DbUpdateConcurrencyException ex)
     {
@@ -206,6 +281,29 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
     }
 
     return result;
+  }
+
+  /// <inheritdoc/>
+  protected override async Task AfterSaveChangesAsync(DbContext context)
+  {
+    await Task.Run(() =>
+    {
+      foreach (var entry in context.ChangeTracker.Entries())
+      {
+        if (entry.State == EntityState.Added)
+        {
+          // Perform actions after entity is added
+        }
+        else if (entry.State == EntityState.Modified)
+        {
+          // Perform actions after entity is modified
+        }
+        else if (entry.State == EntityState.Deleted)
+        {
+          // Perform actions after entity is deleted
+        }
+      }
+    });
   }
 
   /// <summary>
@@ -267,5 +365,4 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
       ex
     );
   }
-
 }
