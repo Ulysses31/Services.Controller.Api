@@ -53,7 +53,8 @@ namespace Services.Controllers.API
       JsonSerializerOptions jsonOptions
     )
     {
-      if (context.Request.Path.StartsWithSegments("/swagger"))
+      if (context.Request.Path.StartsWithSegments("/swagger")
+        || context.Request.Path.StartsWithSegments("/"))
       {
         await next.Invoke();
         return;

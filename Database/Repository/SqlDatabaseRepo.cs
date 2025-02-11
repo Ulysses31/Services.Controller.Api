@@ -1,5 +1,4 @@
 using System.Text.Json;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Services.Controllers.API.Configuration;
@@ -16,14 +15,20 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   private const string NullEntity = "You must provide an entity.";
 
   private readonly DbContext _context;
+  private readonly ILogger<SqlDatabaseRepo<TEntity>> _logger;
 
   /// <summary>
   /// Initializes a new instance of the <see cref="SqlDatabaseRepo{TEntity}"/> class.
   /// </summary>
   /// <param name="context">The database context used for data operations.</param>
-  public SqlDatabaseRepo(DbContext context) : base()
+  /// <param name="logger">Serilog</param>
+  public SqlDatabaseRepo(
+    DbContext context,
+    ILogger<SqlDatabaseRepo<TEntity>> logger
+  ) : base()
   {
     _context = context ?? throw new ArgumentNullException(nameof(context));
+    _logger = logger ?? throw new ArgumentNullException(nameof(_logger));
   }
 
   #region Sync-Methods
@@ -135,12 +140,14 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   }
 
   /// <inheritdoc/>
-  public override async Task<TEntity> FilterAsync(string id)
+  public override async Task<TEntity> FilterAsyncById(string id)
   {
     if (id == null) throw new ArgumentNullException(NullEntity, nameof(NullEntity));
 
-    var entity = await _context.Set<TEntity>().FindAsync(Convert.ToInt32(id));
-    return entity ?? throw new Exception("Entity not found.");
+    TEntity entity = await _context.Set<TEntity>().FindAsync(id)
+      ?? throw new Exception("Entity not found.");
+
+    return await Task.FromResult(entity);
   }
 
   /// <inheritdoc/>
@@ -177,8 +184,35 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   #endregion Async-Methods
 
   /// <inheritdoc/>
+  protected override Task SaveEntityValidate(DbContext context)
+  {
+    _logger.LogInformation("===> Base SaveEntityValidate...");
+
+    return Task.Run(() =>
+     {
+       foreach (var entry in context.ChangeTracker.Entries())
+       {
+         if (entry.State == EntityState.Added)
+         {
+           // Perform actions on newly added entities
+         }
+         else if (entry.State == EntityState.Modified)
+         {
+           // Perform actions before update
+         }
+         else if (entry.State == EntityState.Deleted)
+         {
+           // Perform actions before deletion
+         }
+       }
+     });
+  }
+
+  /// <inheritdoc/>
   protected override Task BeforeSaveChanges(DbContext context)
   {
+    _logger.LogInformation("===> Base BeforeSaveChanges...");
+
     return Task.Run(() =>
     {
       foreach (var entry in context.ChangeTracker.Entries())
@@ -206,9 +240,19 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
 
     try
     {
+      //********* LoaderValidate ****************************//
+      SaveEntityValidate(context);
+      //********* LoaderValidate ****************************//
+
+      //********* Before Apply Updates **********************//
       BeforeSaveChanges(context);
+      //********* Before Apply Updates **********************//
+
       result = context.SaveChanges();
+
+      //********* After Apply Updates ***********************//
       AfterSaveChanges(context);
+      //********* After Apply Updates ***********************//
     }
     catch (DbUpdateConcurrencyException ex)
     {
@@ -221,6 +265,8 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   /// <inheritdoc/>
   protected override Task AfterSaveChanges(DbContext context)
   {
+    _logger.LogInformation("===> Base AfterSaveChanges...");
+
     return Task.Run(() =>
     {
       foreach (var entry in context.ChangeTracker.Entries())
@@ -242,12 +288,47 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   }
 
   /// <inheritdoc/>
-  protected override async Task BeforeSaveChangesAsync(DbContext context)
+  protected override async Task SaveEntityAsyncValidate(DbContext context)
   {
+    string entityName = await GetCurrentEntity(context);
+
+    _logger.LogInformation($"===> Base SaveEntityAsyncValidate... {entityName}");
+
     await Task.Run(() =>
     {
       foreach (var entry in context.ChangeTracker.Entries())
       {
+        if (entry.Entity is UserActivityLogDto) return;
+
+        if (entry.State == EntityState.Added)
+        {
+          // Perform actions on newly added entities
+        }
+        else if (entry.State == EntityState.Modified)
+        {
+          // Perform actions before update
+        }
+        else if (entry.State == EntityState.Deleted)
+        {
+          // Perform actions before deletion
+        }
+      }
+    });
+  }
+
+  /// <inheritdoc/>
+  protected override async Task BeforeSaveChangesAsync(DbContext context)
+  {
+    string entityName = await GetCurrentEntity(context);
+
+    _logger.LogInformation($"===> Base BeforeSaveChangesAsync... {entityName}");
+
+    await Task.Run(() =>
+    {
+      foreach (var entry in context.ChangeTracker.Entries())
+      {
+        if (entry.Entity is UserActivityLogDto) return;
+
         if (entry.State == EntityState.Added)
         {
           // Perform actions on newly added entities
@@ -271,9 +352,19 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
 
     try
     {
+      //********* LoaderValidate ****************************//
+      await SaveEntityAsyncValidate(context);
+      //********* LoaderValidate ****************************//
+
+      //********* Before Apply Updates **********************//
       await BeforeSaveChangesAsync(context);
+      //********* Before Apply Updates **********************//
+
       result = await context.SaveChangesAsync();
+
+      //********* After Apply Updates ***********************//
       await AfterSaveChangesAsync(context);
+      //********* After Apply Updates ***********************//
     }
     catch (DbUpdateConcurrencyException ex)
     {
@@ -286,21 +377,19 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
   /// <inheritdoc/>
   protected override async Task AfterSaveChangesAsync(DbContext context)
   {
+    string entityName = await GetCurrentEntity(context);
+
+    _logger.LogInformation($"===> Base AfterSaveChangesAsync... {entityName}");
+
     await Task.Run(() =>
     {
       foreach (var entry in context.ChangeTracker.Entries())
       {
-        if (entry.State == EntityState.Added)
+        if (entry.Entity is UserActivityLogDto) return;
+
+        if (entry.State == EntityState.Unchanged)
         {
-          // Perform actions after entity is added
-        }
-        else if (entry.State == EntityState.Modified)
-        {
-          // Perform actions after entity is modified
-        }
-        else if (entry.State == EntityState.Deleted)
-        {
-          // Perform actions after entity is deleted
+          // Perform actions after entity is added or updated
         }
       }
     });
@@ -365,4 +454,27 @@ public class SqlDatabaseRepo<TEntity> : SqlDatabaseBaseRepo<TEntity> where TEnti
       ex
     );
   }
+
+  /// <summary>
+  /// Retrieves the current entity being modified in the database context. 
+  /// </summary>
+  /// <param name="context">DbContext</param>
+  /// <returns>string</returns>
+  public static async Task<string> GetCurrentEntity(DbContext context)
+  {
+    return await Task.Run(() =>
+    {
+      EntityEntry currEntity = context.ChangeTracker.Entries()
+                                        .Where(e => e.State == EntityState.Added
+                                          || e.State == EntityState.Modified
+                                          || e.State == EntityState.Unchanged)
+                                        .FirstOrDefault()
+                                        ?? throw new Exception("Entity not found.");
+
+      string entityName = currEntity.Entity.GetType().Name;
+
+      return entityName;
+    });
+  }
+
 }

@@ -68,32 +68,38 @@ public abstract class SqlDatabaseBaseRepo<TEntity> where TEntity : class
   /// </summary>
   /// <param name="paginationQuery">PaginationQuery</param>
   /// <returns></returns>
+  // TODO: FilterValidate FilterPaginationAsync 
   public abstract Task<PagedResult<TEntity>> FilterPaginationAsync(PaginationQuery paginationQuery);
 
   /// <summary>
   /// Asynchronously retrieves all entities as a queryable collection.
   /// </summary>
+  // TODO: FilterValidate FilterAsync
   public abstract Task<IQueryable<TEntity>> FilterAsync();
 
   /// <summary>
   /// Asynchronously retrieves entities that match the given predicate.
   /// </summary>
+  // TODO: FilterValidate FilterAsync(Func<TEntity, bool> predicate);
   public abstract Task<IEnumerable<TEntity>> FilterAsync(Func<TEntity, bool> predicate);
 
   /// <summary>
   /// Asynchronously retrieves all entities as a queryable collection without tracking.
   /// </summary>
+  // TODO: FilterValidate FilterAsNoTrackingAsync
   public abstract Task<IQueryable<TEntity>> FilterAsNoTrackingAsync();
 
   /// <summary>
   /// Asynchronously retrieves entities that match the given predicate without tracking.
   /// </summary>
+  // TODO: FilterValidate FilterAsNoTrackingAsync(Func<TEntity, bool> predicate);
   public abstract Task<IEnumerable<TEntity>> FilterAsNoTrackingAsync(Func<TEntity, bool> predicate);
 
   /// <summary>
   /// Asynchronously retrieves an entity by its identifier.
   /// </summary>
-  public abstract Task<TEntity> FilterAsync(string id);
+  // TODO: FilterValidate FilterAsyncById(string id)
+  public abstract Task<TEntity> FilterAsyncById(string id);
 
   /// <summary>
   /// Asynchronously creates a new entity in the database.
@@ -115,6 +121,11 @@ public abstract class SqlDatabaseBaseRepo<TEntity> where TEntity : class
   #region Save-Methods 
 
   /// <summary>
+  /// Validates the entity before save it to database. 
+  /// </summary>
+  protected abstract Task SaveEntityValidate(DbContext context);
+
+  /// <summary>
   /// Before Saves changes to the database.
   /// </summary>
   protected abstract Task BeforeSaveChanges(DbContext context);
@@ -128,6 +139,11 @@ public abstract class SqlDatabaseBaseRepo<TEntity> where TEntity : class
   /// After Saves changes to the database.
   /// </summary>
   protected abstract Task AfterSaveChanges(DbContext context);
+
+  /// <summary>
+  /// Asynchronously validates the entity before save it to database. 
+  /// </summary>
+  protected abstract Task SaveEntityAsyncValidate(DbContext context);
 
   /// <summary>
   /// Before Asynchronously Saves changes to the database.

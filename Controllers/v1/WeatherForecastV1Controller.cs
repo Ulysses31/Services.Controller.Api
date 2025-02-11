@@ -152,10 +152,8 @@ public class WeatherForecastController : ControllerBase
       }));
     }
 
-    IEnumerable<WeatherForecastDto> resultDtoList
-      = await _services.FilterAsync(x => x.Id == id);
-
-    WeatherForecastDto? resultDto = resultDtoList.FirstOrDefault();
+    WeatherForecastDto resultDto
+      = await _services.FilterAsyncById(id);
 
     if (resultDto == null)
     {

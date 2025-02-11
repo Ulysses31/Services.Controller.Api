@@ -13,9 +13,11 @@ public class UserActivityDbRepo : SqlDatabaseRepo<UserActivityLogDto>
   /// Initializes a new instance of the <see cref="UserActivityDbRepo"/> class.
   /// </summary>
   /// <param name="context">The database context used for data operations.</param>
+  /// <param name="logger">Serilog</param>
   public UserActivityDbRepo(
-      ServicesDbContext context
-  ) : base(context)
+      ServicesDbContext context,
+      ILogger<UserActivityDbRepo> logger
+  ) : base(context, logger)
   {
   }
 }

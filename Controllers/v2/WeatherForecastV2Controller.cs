@@ -55,30 +55,30 @@ public class WeatherForecastController : ControllerBase
   // [ApiExplorerSettings(IgnoreApi = true)]
   public async Task<IActionResult> Delete(string id)
   {
-    if (string.IsNullOrWhiteSpace(id))
-    {
-      return await Task.FromResult<IActionResult>(BadRequest(new ProblemDetails
-      {
-        Title = "Bad Request",
-        Detail = "Id is required.",
-        Status = StatusCodes.Status400BadRequest
-      }));
-    }
+    // if (string.IsNullOrWhiteSpace(id))
+    // {
+    //   return await Task.FromResult<IActionResult>(BadRequest(new ProblemDetails
+    //   {
+    //     Title = "Bad Request",
+    //     Detail = "Id is required.",
+    //     Status = StatusCodes.Status400BadRequest
+    //   }));
+    // }
 
-    WeatherForecastDto? resultDto = await _services.FilterAsync(id);
+    // WeatherForecastDto? resultDto = await _services.FilterAsync(id);
 
-    if (resultDto is null)
-    {
-      return await Task.FromResult<IActionResult>(
-        NotFound(new ProblemDetails
-        {
-          Title = "Not Found",
-          Detail = "Weather forecast not found.",
-          Status = StatusCodes.Status404NotFound
-        }));
-    }
+    // if (resultDto is null)
+    // {
+    //   return await Task.FromResult<IActionResult>(
+    //     NotFound(new ProblemDetails
+    //     {
+    //       Title = "Not Found",
+    //       Detail = "Weather forecast not found.",
+    //       Status = StatusCodes.Status404NotFound
+    //     }));
+    // }
 
-    await _services.DeleteAsync(resultDto);
+    // await _services.DeleteAsync(resultDto);
 
     return await Task.FromResult<IActionResult>(NoContent());
   }
