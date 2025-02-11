@@ -1,15 +1,18 @@
-
+using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Serilog;
 using Services.Controllers.API.Configuration;
+using Services.Controllers.API.Database.Contexts;
+using Services.Controllers.API.Database.Models;
+using Services.Controllers.API.HealthCheck;
 using Services.Controllers.API.Mapping;
-using Services.Controllers.API.Models;
 using Services.Controllers.API.RateLimit;
 using Services.Controllers.API.Services;
 using Services.Controllers.API.Validator;
@@ -130,19 +133,57 @@ public class Program
     }
 
     // Health Checks
-    // if (CommonAppOptions.EnableHealthCheck) {
-    //   services.CommonHealthCheckSetup<AuthorDbContextV1>(
-    //       $"https://publications.io:7000/api/v1/publications/author",
-    //       DbTypeEnum.MsSql,
-    //       $"Server={server},{port};Database={database};User={user};Password={password};TrustServerCertificate=True"
-    //   );
-    // }
+    if (CommonAppOptions.EnableHealthCheck)
+    {
+      services.CommonHealthCheckSetup<ServicesDbContext>(
+          $"http://localhost:5096/api/v1/HealthChecksDb/test-database",
+          DbTypeEnum.SqLite,
+          builder.Configuration["ConnectionStrings:SqlLiteConnection"]!);
+    }
 
     // Mapping
     services.AddAutoMapper(typeof(MappingProfile));
 
     // Add FluentValidation to the dependency injection container
     services.AddScoped<IValidator<WeatherForecastDto>, DtoValidator>();
+
+    // Database Context
+    services.AddDbContext<ServicesDbContext>(options =>
+    {
+      // _ = options.UseSqlServer(
+      //     $"Server={server},{port};Database={database};User={user};Password={password};Encrypt=Optional;TrustServerCertificate=True"
+      // )
+      options.UseSqlite(
+        builder.Configuration["ConnectionStrings:SqlLiteConnection"],
+        o => o.UseQuerySplittingBehavior(QuerySplittingBehavior.SingleQuery)
+      )
+      .LogTo(
+          message => Console.WriteLine(message),
+          envName == "Development" ? LogLevel.Trace : LogLevel.Error,
+          DbContextLoggerOptions.DefaultWithUtcTime
+      )
+      .LogTo(
+          message => Debug.WriteLine(message),
+          envName == "Development" ? LogLevel.Trace : LogLevel.Error,
+          DbContextLoggerOptions.DefaultWithUtcTime
+      )
+       .EnableDetailedErrors(envName.Equals("Development", StringComparison.Ordinal))
+       .EnableSensitiveDataLogging(envName.Equals("Development", StringComparison.Ordinal))
+       .UseQueryTrackingBehavior(QueryTrackingBehavior.TrackAll)
+       .UseLazyLoadingProxies(o => { });
+      // .UseAsyncSeeding(
+      //    async (context, _, token) =>
+      //    {
+      //      await context.Database.EnsureCreatedAsync(token);
+      //    }
+      // );
+      DiagnosticListener.AllListeners.Subscribe(new DiagnosticObserver());
+    });
+
+    // database repo services
+    services.AddScoped<ServicesApiDbRepo>();
+    services.AddScoped<UserActivityDbRepo>();
+    services.AddScoped<HealthCheckDbRepo>();
 
     // ******************* APP ******************************************//
     var app = builder.Build();
@@ -171,7 +212,7 @@ public class Program
 
       if (CommonAppOptions.EnableApiCache)
       {
-        // app.UseOutputCache();
+        app.UseOutputCache();
       }
     }
     else
@@ -195,8 +236,13 @@ public class Program
       app.UseRateLimiter();
     }
 
-    _logger.Information("===> Environment: {envName}", envName);
-    _logger.Information("===> Host: {HostIpAddress}", requesterInfo.hostInfo.Addr);
+    if (CommonAppOptions.EnableHealthCheck)
+    {
+      app.CommonHealthCheckUseSetup();
+    }
+
+    _logger.Information("===> 💻 Environment: {envName}", envName);
+    _logger.Information("===> 💻 Host: {HostIpAddress}", requesterInfo.hostInfo.Addr);
 
     app.Run();
 

@@ -41,7 +41,7 @@ public class GenApiHostedService : IHostedService
   public Task StartAsync(CancellationToken cancellationToken)
   {
     _appLifetime.ApplicationStarted.Register(OnStarted);
-    _logger.LogInformation("===> GenApiHostedService started");
+    _logger.LogInformation("===> 👏 GenApiHostedService started");
     return Task.CompletedTask;
   }
 
@@ -52,7 +52,7 @@ public class GenApiHostedService : IHostedService
   /// <returns>Task</returns>
   public Task StopAsync(CancellationToken cancellationToken)
   {
-    _logger.LogInformation("===> GenApiHostedService finished");
+    _logger.LogInformation("===> 👏 GenApiHostedService finished");
     return Task.CompletedTask;
   }
 

@@ -1,4 +1,5 @@
 using AutoMapper;
+using Services.Controllers.API.Database.Models;
 using Services.Controllers.API.Models;
 
 namespace Services.Controllers.API.Mapping
@@ -15,6 +16,7 @@ namespace Services.Controllers.API.Mapping
     /// </summary>
     public MappingProfile()
     {
+      CreateMap<PagedResult<WeatherForecastDto>, PagedResultResponse<WeatherForecastResponse>>();
       CreateMap<WeatherForecastDto, WeatherForecastResponse>();
     }
   }

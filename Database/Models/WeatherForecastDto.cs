@@ -1,11 +1,11 @@
 using System.Xml.Serialization;
 
-namespace Services.Controllers.API.Models
+namespace Services.Controllers.API.Database.Models
 {
   /// <summary>
   /// Represents a weather forecast for a specific date, including temperature in Celsius and Fahrenheit, and a summary description.
   /// </summary>
-  public class WeatherForecastDto
+  public class WeatherForecastDto: BaseEntity
   {
     /// <summary>
     /// Gets or sets the unique identifier for the weather forecast.
@@ -16,7 +16,7 @@ namespace Services.Controllers.API.Models
     /// <summary>
     /// Gets or sets the date of the weather forecast.
     /// </summary>
-    public DateTime Date { get; set; }
+    public DateOnly Date { get; set; }
 
     /// <summary>
     /// Gets or sets the temperature in Celsius for the forecasted date.
@@ -27,7 +27,7 @@ namespace Services.Controllers.API.Models
     /// Gets the temperature in Fahrenheit for the forecasted date, 
     /// calculated from the temperature in Celsius.
     /// </summary>
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    public int TemperatureF { get; set; }
 
     /// <summary>
     /// Gets or sets a summary description of the weather (e.g., sunny, rainy).

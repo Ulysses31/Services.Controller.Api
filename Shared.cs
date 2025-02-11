@@ -6,6 +6,7 @@ using NSwag;
 using NSwag.CodeGeneration.CSharp;
 using NSwag.CodeGeneration.TypeScript;
 using Serilog.Core;
+using Services.Controllers.API.Database.Models;
 using Services.Controllers.API.Services;
 
 namespace Services.Controllers.API
@@ -52,14 +53,20 @@ namespace Services.Controllers.API
       JsonSerializerOptions jsonOptions
     )
     {
-      if (context.Request.Path.StartsWithSegments("/swagger"))
+      if (context.Request.Path.StartsWithSegments("/swagger")
+        || context.Request.Path.StartsWithSegments("/health")
+        || context.Request.Path.StartsWithSegments("/ui")
+        || context.Request.Path.StartsWithSegments("/dashboard")
+        || context.Request.Path.StartsWithSegments("/healthchecks-api")
+        || context.Request.Path.StartsWithSegments("/api/v1/HealthChecksDb")
+        || context.Request.Path.StartsWithSegments("/"))
       {
         await next.Invoke();
         return;
       }
 
       // Do work that can write to the Response.
-      _logger.Information($"===> Request started at: {DateTime.Now}");
+      _logger.Information($"===> ⏰ Request started at: {DateTime.Now}");
 
       //****** Request body ********
       context.Request.EnableBuffering();
@@ -115,9 +122,41 @@ namespace Services.Controllers.API
         ResponseBody = respBody
       };
 
-      _logger.Information(JsonSerializer.Serialize(requesterInfo, jsonOptions));
+      // Log user activity to database
+      // _logger.Information(JsonSerializer.Serialize(requesterInfo, jsonOptions));
+      UserActivityLogDto userActivityLogDto = new UserActivityLogDto()
+      {
+        SourceName = requesterInfo.reqInfo.SourceName,
+        OsVersion = requesterInfo.reqInfo.OsVersion,
+        Host = requesterInfo.hostInfo.Hostname,
+        Username = requesterInfo.hostInfo.Username,
+        DomainName = requesterInfo.hostInfo.userDomainName,
+        Address = requesterInfo.hostInfo.Addr,
+        RequestMethod = requesterInfo.RequestMethod,
+        RequestPath = requesterInfo.RequestPath,
+        RequestBody = requesterInfo.RequestBody,
+        RequestHeaders = requesterInfo.RequestHeaders,
+        ResponseHeaders = requesterInfo.ResponseHeaders,
+        ResponseStatusCode = requesterInfo.ResponseStatusCode,
+        ResponseBody = requesterInfo.ResponseBody,
+        RequestTime = DateTime.Now.ToString(),
+        CreatedBy = "System"
+      };
 
-      _logger.Information($"===> Request finished at: {DateTime.Now}");
+      using (var scope = context.RequestServices.CreateScope())
+      {
+        try
+        {
+          var _userActivityDbRepo = scope.ServiceProvider.GetRequiredService<UserActivityDbRepo>();
+          await _userActivityDbRepo.CreateAsync(userActivityLogDto);
+        }
+        catch (System.Exception ex)
+        {
+          throw new Exception(ex.Message, ex.InnerException);
+        }
+      }
+
+      _logger.Information($"===> ⏰ Request finished at: {DateTime.Now}");
     }
 
 
@@ -152,7 +191,7 @@ namespace Services.Controllers.API
       var generatedCodeController = generatorController.GenerateFile();
       var pathController = $"./ApiGen/{version}/{settingsController.CSharpGeneratorSettings.Namespace}/{className}_controller.cs";
 
-      _logger.LogInformation($"===> Generated controller file path: {pathController}");
+      _logger.LogInformation($"===> 💻 Generated controller file path: {pathController}");
 
       var fileController = new FileInfo(pathController);
       fileController.Directory?.Create();
@@ -174,7 +213,7 @@ namespace Services.Controllers.API
       var generatedCodeClient = generatorClient.GenerateFile();
       var pathClient = $"./ApiGen/{version}/{settingsClient.CSharpGeneratorSettings.Namespace}/{settingsClient.ClassName}_client.cs";
 
-      _logger.LogInformation($"===> Generated csharp-client file path: {pathClient}");
+      _logger.LogInformation($"===> 💻 Generated csharp-client file path: {pathClient}");
 
       var fileClient = new FileInfo(pathClient);
       fileClient.Directory?.Create();
@@ -195,7 +234,7 @@ namespace Services.Controllers.API
       var generatedCodeTypescript = generatorTypescript.GenerateFile();
       var pathTypescript = $"./ApiGen/{version}/{settingsTypescript.TypeScriptGeneratorSettings.Namespace}/{settingsTypescript.ClassName}.ts";
 
-      _logger.LogInformation($"===> Generated typescript-client file path: {pathTypescript}");
+      _logger.LogInformation($"===> 💻 Generated typescript-client file path: {pathTypescript}");
 
       var fileTypescript = new FileInfo(pathTypescript);
       fileTypescript.Directory?.Create();

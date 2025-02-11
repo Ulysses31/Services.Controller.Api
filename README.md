@@ -48,7 +48,54 @@ dotnet dev-certs https --trust
   Path: {Domain}/swagger/index.html
 
 -->
+# Entity Framework
 
+## Entity Framework Migrations
+```bash
+dotnet-ef migrations add -o Database/Migrations InitialCreate -v
+```
+## Entity Framework Update Database
+```bash
+dotnet-ef database update -v
+```
+## Entity Framework Drop Database
+```bash
+dotnet-ef database drop -v
+```
+## Entity Framework Core Database Provider Preprocessor Directives
+
+| Database Provider            | Preprocessor Directive |
+|------------------------------|------------------------|
+| Microsoft SQL Server         | `#if NETSTANDARD` (general) |
+| SQLite                       | `#if NETSTANDARD` (general) |
+| PostgreSQL (Npgsql)          | `#if NPGSQL` |
+| MySQL (Pomelo)               | `#if MYSQL` |
+| Oracle (Oracle.EntityFrameworkCore) | `#if ORACLE` |
+| Cosmos DB                    | `#if COSMOS` |
+| In-Memory Database           | `#if MEMORY` |
+
+### Usage Example
+When writing provider-specific logic, you can use preprocessor directives like this:
+```csharp
+#if NPGSQL
+    optionsBuilder.UseNpgsql("Host=my_host;Database=my_db;");
+#elif MYSQL
+    optionsBuilder.UseMySql("server=my_server;",
+        new MySqlServerVersion(new Version(8, 0, 23)));
+#elif ORACLE
+    optionsBuilder.UseOracle("User Id=my_user;");
+#else
+    optionsBuilder.UseSqlServer("Server=my_server;");
+#endif
+```
+## Benchmarking
+Open CLI and type
+```cmd
+dotnet run -c release 
+```
+```cmd
+curl -X 'GET' 'http://localhost:5096/api/v1/WeatherForecast/benchmark' -H 'accept: application/json' 
+```
 ## K6 Test
   Open CLI and type...
 ```bash

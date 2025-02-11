@@ -1,5 +1,5 @@
 using FluentValidation;
-using Services.Controllers.API.Models;
+using Services.Controllers.API.Database.Models;
 
 namespace Services.Controllers.API.Validator;
 
