@@ -13,6 +13,8 @@
         "Diagnoser",
         "DPAPI",
         "elif",
+        "healthcheck",
+        "healthchecks",
         "Iordanidis",
         "LICX",
         "localmachine",
@@ -20,6 +22,7 @@
         "Npgsql",
         "Serilog",
         "Swashbuckle",
+        "testdatabase",
         "weatherforecast"
     ],
     "ignoreWords": [],

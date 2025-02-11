@@ -54,6 +54,11 @@ namespace Services.Controllers.API
     )
     {
       if (context.Request.Path.StartsWithSegments("/swagger")
+        || context.Request.Path.StartsWithSegments("/health")
+        || context.Request.Path.StartsWithSegments("/ui")
+        || context.Request.Path.StartsWithSegments("/dashboard")
+        || context.Request.Path.StartsWithSegments("/healthchecks-api")
+        || context.Request.Path.StartsWithSegments("/api/v1/HealthChecksDb")
         || context.Request.Path.StartsWithSegments("/"))
       {
         await next.Invoke();

@@ -11,6 +11,7 @@ using Serilog;
 using Services.Controllers.API.Configuration;
 using Services.Controllers.API.Database.Contexts;
 using Services.Controllers.API.Database.Models;
+using Services.Controllers.API.HealthCheck;
 using Services.Controllers.API.Mapping;
 using Services.Controllers.API.RateLimit;
 using Services.Controllers.API.Services;
@@ -132,13 +133,13 @@ public class Program
     }
 
     // Health Checks
-    // if (CommonAppOptions.EnableHealthCheck) {
-    //   services.CommonHealthCheckSetup<AuthorDbContextV1>(
-    //       $"https://publications.io:7000/api/v1/publications/author",
-    //       DbTypeEnum.MsSql,
-    //       $"Server={server},{port};Database={database};User={user};Password={password};TrustServerCertificate=True"
-    //   );
-    // }
+    if (CommonAppOptions.EnableHealthCheck)
+    {
+      services.CommonHealthCheckSetup<ServicesDbContext>(
+          $"http://localhost:5096/api/v1/HealthChecksDb/test-database",
+          DbTypeEnum.SqLite,
+          builder.Configuration["ConnectionStrings:SqlLiteConnection"]!);
+    }
 
     // Mapping
     services.AddAutoMapper(typeof(MappingProfile));
@@ -182,6 +183,7 @@ public class Program
     // database repo services
     services.AddScoped<ServicesApiDbRepo>();
     services.AddScoped<UserActivityDbRepo>();
+    services.AddScoped<HealthCheckDbRepo>();
 
     // ******************* APP ******************************************//
     var app = builder.Build();
@@ -210,7 +212,7 @@ public class Program
 
       if (CommonAppOptions.EnableApiCache)
       {
-        // app.UseOutputCache();
+        app.UseOutputCache();
       }
     }
     else
@@ -232,6 +234,11 @@ public class Program
     if (CommonAppOptions.EnableRateLimiting)
     {
       app.UseRateLimiter();
+    }
+
+    if (CommonAppOptions.EnableHealthCheck)
+    {
+      app.CommonHealthCheckUseSetup();
     }
 
     _logger.Information("===> 💻 Environment: {envName}", envName);

@@ -32,7 +32,8 @@ namespace Services.Controllers.API.HealthCheck
       string dbConnectionString
     ) where T : DbContext
     {
-      var configuration = services.BuildServiceProvider().GetRequiredService<IConfiguration>();
+      var configuration = services.BuildServiceProvider()
+                                  .GetRequiredService<IConfiguration>();
 
       // HTTP Clients
       services.AddHttpClient("api-health-check", options =>
@@ -53,6 +54,10 @@ namespace Services.Controllers.API.HealthCheck
         case "MySql":
           break;
         case "SqLite":
+          services.AddHealthChecks()
+              .AddSqlite(dbConnectionString)
+              .AddDbContextCheck<T>()
+              .AddCheck<ApiHealthChecks>($"API {apiEndpoint}");
           break;
         case "MongoDb":
           break;
